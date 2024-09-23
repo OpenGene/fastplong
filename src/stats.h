@@ -14,7 +14,7 @@ using namespace std;
 class Stats{
 public:
     // this @guessedCycles parameter should be calculated using the first several records
-    Stats(Options* opt, bool isRead2 = false, int guessedCycles = 0, int bufferMargin = 1024);
+    Stats(Options* opt, int guessedCycles = 0, int bufferMargin = 1024);
     ~Stats();
     int getCycles();
     long getReads();

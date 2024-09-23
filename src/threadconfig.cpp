@@ -6,8 +6,8 @@ ThreadConfig::ThreadConfig(Options* opt, int threadId, bool paired){
     mThreadId = threadId;
     mWorkingSplit = threadId;
     mCurrentSplitReads = 0;
-    mPreStats1 = new Stats(mOptions, false);
-    mPostStats1 = new Stats(mOptions, false);
+    mPreStats1 = new Stats(mOptions);
+    mPostStats1 = new Stats(mOptions);
 
     mWriter1 = NULL;
 
