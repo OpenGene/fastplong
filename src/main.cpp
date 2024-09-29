@@ -252,6 +252,9 @@ int main(int argc, char* argv[]){
     bool supportEvaluation = !opt.inputFromSTDIN && opt.in!="/dev/stdin";
 
     Evaluator eva(&opt);
+    if(supportEvaluation) {
+        eva.evaluateSeqLen();
+    }
 
     long readNum = 0;
 

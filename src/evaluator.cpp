@@ -13,6 +13,35 @@ Evaluator::Evaluator(Options* opt){
 Evaluator::~Evaluator(){
 }
 
+void Evaluator::evaluateSeqLen() {
+    if(!mOptions->in.empty())
+        mOptions->seqLen = computeSeqLen(mOptions->in);
+}
+
+int Evaluator::computeSeqLen(string filename) {
+    FastqReader reader(filename);
+
+    long records = 0;
+    bool reachedEOF = false;
+
+    // get seqlen
+    int seqlen=0;
+    while(records < 1000) {
+        Read* r = reader.read();
+        if(!r) {
+            reachedEOF = true;
+            break;
+        }
+        int rlen = r->length();
+        if(rlen > seqlen)
+            seqlen = rlen;
+        records ++;
+        delete r;
+    }
+
+    return seqlen;
+}
+
 void Evaluator::evaluateReadNum(long& readNum) {
     FastqReader reader(mOptions->in);
 
