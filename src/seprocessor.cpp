@@ -218,6 +218,16 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
 
         config->addFilterResult(result, 1);
 
+        if( r1 != NULL &&  result == PASS_FILTER) {
+            r1->appendToString(outstr);
+
+            // stats the read after filtering
+            config->getPostStats1()->statRead(r1);
+            readPassed++;
+        } else if(mFailedWriter) {
+            or1->appendToStringWithTag(failedOut, FAILED_TYPES[result]);
+        }
+
         recycleToPool(tid, or1);
         // if no trimming applied, r1 should be identical to or1
         if(r1 != or1 && r1 != NULL)

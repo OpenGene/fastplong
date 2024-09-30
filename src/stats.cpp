@@ -59,9 +59,6 @@ void Stats::extendBuffer(int newBufLen){
     if(newBufLen <= mBufLen)
         return ;
 
-    // align to 64bit
-    newBufLen = (1+newBufLen/8)*8;
-
     long* newBuf = NULL;
 
     for(int i=0; i<8; i++){
