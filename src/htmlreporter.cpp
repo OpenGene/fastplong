@@ -80,7 +80,7 @@ void HtmlReporter::printSummary(ofstream& ofs, FilterResult* result, Stats* preS
 
     if(mOptions->adapterCuttingEnabled()) {
         if(!mOptions->adapter.detectedAdapter.empty())
-            outputRow(ofs, "Detected read1 adapter:", mOptions->adapter.detectedAdapter);
+            outputRow(ofs, "Detected adapter:", mOptions->adapter.detectedAdapter);
     }
     ofs << "</table>\n";
     ofs << "</div>\n";
@@ -154,7 +154,7 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "<div id='before_filtering'>\n";
 
     if(preStats1) {
-        preStats1 -> reportHtml(ofs, "Before filtering", "read1");
+        preStats1 -> reportHtml(ofs, "Before filtering");
     }
 
     ofs << "</div>\n";
@@ -165,8 +165,7 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "<div id='after_filtering'>\n";
 
     if(postStats1) {
-        string name = "read1";
-        postStats1 -> reportHtml(ofs, "After filtering", name);
+        postStats1 -> reportHtml(ofs, "After filtering");
     }
 
     ofs << "</div>\n";

@@ -43,7 +43,7 @@ void JsonReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "\t\t\t" << "\"q30_bases\":" << pre_q30_bases << "," << endl; 
     ofs << "\t\t\t" << "\"q20_rate\":" << (pre_total_bases == 0?0.0:(double)pre_q20_bases / (double)pre_total_bases) << "," << endl; 
     ofs << "\t\t\t" << "\"q30_rate\":" << (pre_total_bases == 0?0.0:(double)pre_q30_bases / (double)pre_total_bases) << "," << endl; 
-    ofs << "\t\t\t" << "\"read1_mean_length\":" << preStats1->getMeanLength() << "," << endl;
+    ofs << "\t\t\t" << "\"read_mean_length\":" << preStats1->getMeanLength() << "," << endl;
     ofs << "\t\t\t" << "\"gc_content\":" << (pre_total_bases == 0?0.0:(double)pre_total_gc / (double)pre_total_bases)  << endl; 
     ofs << "\t\t" << "}," << endl;
 
@@ -54,7 +54,7 @@ void JsonReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "\t\t\t" << "\"q30_bases\":" << post_q30_bases << "," << endl; 
     ofs << "\t\t\t" << "\"q20_rate\":" << (post_total_bases == 0?0.0:(double)post_q20_bases / (double)post_total_bases) << "," << endl; 
     ofs << "\t\t\t" << "\"q30_rate\":" << (post_total_bases == 0?0.0:(double)post_q30_bases / (double)post_total_bases) << "," << endl; 
-    ofs << "\t\t\t" << "\"read1_mean_length\":" << postStats1->getMeanLength() << "," << endl;
+    ofs << "\t\t\t" << "\"read_mean_length\":" << postStats1->getMeanLength() << "," << endl;
     ofs << "\t\t\t" << "\"gc_content\":" << (post_total_bases == 0?0.0:(double)post_total_gc / (double)post_total_bases)  << endl; 
     ofs << "\t\t" << "}";
 
@@ -78,12 +78,12 @@ void JsonReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     }
 
     if(preStats1) {
-        ofs << "\t" << "\"read1_before_filtering\": " ;
+        ofs << "\t" << "\"read_before_filtering\": " ;
         preStats1 -> reportJson(ofs, "\t");
     }
 
     if(postStats1) {
-        string name = "read1_after_filtering";
+        string name = "read_after_filtering";
         ofs << "\t" << "\"" << name << "\": " ;
         postStats1 -> reportJson(ofs, "\t");
     }

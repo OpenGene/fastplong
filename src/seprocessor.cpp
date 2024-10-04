@@ -123,10 +123,10 @@ bool SingleEndProcessor::process(){
         postStats.push_back(configs[t]->getPostStats1());
     }
 
-    cerr << "Read1 before filtering:"<<endl;
+    cerr << "Before filtering:"<<endl;
     finalPreStats->print();
     cerr << endl;
-    cerr << "Read1 after filtering:"<<endl;
+    cerr << "After filtering:"<<endl;
     finalPostStats->print();
 
     cerr << endl;

@@ -481,20 +481,20 @@ string Stats::list2string(long* list, int size) {
     return ss.str();
 }
 
-void Stats::reportHtml(ofstream& ofs, string filteringType, string readName) {
-    reportHtmlQuality(ofs, filteringType, readName);
-    reportHtmlContents(ofs, filteringType, readName);
-    reportHtmlKMER(ofs, filteringType, readName);
+void Stats::reportHtml(ofstream& ofs, string filteringType) {
+    reportHtmlQuality(ofs, filteringType);
+    reportHtmlContents(ofs, filteringType);
+    reportHtmlKMER(ofs, filteringType);
 }
 
 bool Stats::isLongRead() {
     return mCycles > 300;
 }
 
-void Stats::reportHtmlKMER(ofstream& ofs, string filteringType, string readName) {
+void Stats::reportHtmlKMER(ofstream& ofs, string filteringType) {
 
     // KMER
-    string subsection = filteringType + ": " + readName + ": KMER counting";
+    string subsection = filteringType + ": KMER counting";
     string divName = replace(subsection, " ", "_");
     divName = replace(divName, ":", "_");
     string title = "";
@@ -579,10 +579,10 @@ string Stats::kmer2(int val) {
     return ret;
 }
 
-void Stats::reportHtmlQuality(ofstream& ofs, string filteringType, string readName) {
+void Stats::reportHtmlQuality(ofstream& ofs, string filteringType) {
 
     // quality
-    string subsection = filteringType + ": " + readName + ": quality";
+    string subsection = filteringType  + ": quality";
     string divName = replace(subsection, " ", "_");
     divName = replace(divName, ":", "_");
     string title = "";
@@ -656,10 +656,10 @@ void Stats::reportHtmlQuality(ofstream& ofs, string filteringType, string readNa
     delete[] x;
 }
 
-void Stats::reportHtmlContents(ofstream& ofs, string filteringType, string readName) {
+void Stats::reportHtmlContents(ofstream& ofs, string filteringType) {
 
     // content
-    string subsection = filteringType + ": " + readName + ": base contents";
+    string subsection = filteringType + ": base contents";
     string divName = replace(subsection, " ", "_");
     divName = replace(divName, ":", "_");
     string title = "";

@@ -31,10 +31,10 @@ public:
     // a port of JSON report
     void reportJson(ofstream& ofs, string padding);
     // a port of HTML report
-    void reportHtml(ofstream& ofs, string filteringType, string readName);
-    void reportHtmlQuality(ofstream& ofs, string filteringType, string readName);
-    void reportHtmlContents(ofstream& ofs, string filteringType, string readName);
-    void reportHtmlKMER(ofstream& ofs, string filteringType, string readName);
+    void reportHtml(ofstream& ofs, string filteringType);
+    void reportHtmlQuality(ofstream& ofs, string filteringType);
+    void reportHtmlContents(ofstream& ofs, string filteringType);
+    void reportHtmlKMER(ofstream& ofs, string filteringType);
     bool isLongRead();
     int getMeanLength();
 
