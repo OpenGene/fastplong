@@ -61,6 +61,7 @@ private:
     'T' % 8 = 4
     'C' % 8 = 3
     'G' % 8 = 7
+    'U' % 8 = 5
     'N' % 8 = 6
     */
     long *mCycleQ30Bases[8];

@@ -167,6 +167,8 @@ void Stats::summarize(bool forced) {
 
     // quality curves and base content curves for different nucleotides
     char alphabets[5] = {'A', 'T', 'C', 'G', 'N'};
+    if(mOptions->isRNA)
+        alphabets[1]='U';
     for(int i=0; i<5; i++) {
         char base = alphabets[i];
         // get last 3 bits
@@ -300,6 +302,7 @@ int Stats::base2val(char base) {
         case 'A':
             return 0;
         case 'T':
+        case 'U':
             return 1;
         case 'C':
             return 2;
@@ -367,6 +370,8 @@ void Stats::reportJson(ofstream& ofs, string padding) {
 
     // quality curves
     string qualNames[5] = {"A", "T", "C", "G", "mean"};
+    if(mOptions->isRNA)
+        qualNames[1]="U";
     ofs << padding << "\t" << "\"quality_curves\": {" << endl;
     for(int i=0 ;i<5; i++) {
         string name=qualNames[i];
@@ -388,6 +393,8 @@ void Stats::reportJson(ofstream& ofs, string padding) {
 
     // content curves
     string contentNames[6] = {"A", "T", "C", "G", "N", "GC"};
+    if(mOptions->isRNA)
+        contentNames[1]="U";
     ofs << padding << "\t" << "\"content_curves\": {" << endl;
     for(int i=0 ;i<6; i++) {
         string name=contentNames[i];
@@ -552,7 +559,9 @@ string Stats::makeKmerTD(int i, int j) {
 }
 
 string Stats::kmer3(int val) {
-    const char bases[4] = {'A', 'T', 'C', 'G'};
+    char bases[4] = {'A', 'T', 'C', 'G'};
+    if(mOptions->isRNA)
+        bases[1]='U';
     string ret(3, ' ');
     ret[0] = bases[(val & 0x30) >> 4];
     ret[1] = bases[(val & 0x0C) >> 2];
@@ -561,7 +570,9 @@ string Stats::kmer3(int val) {
 }
 
 string Stats::kmer2(int val) {
-    const char bases[4] = {'A', 'T', 'C', 'G'};
+    char bases[4] = {'A', 'T', 'C', 'G'};
+    if(mOptions->isRNA)
+        bases[1]='U';
     string ret(2, ' ');
     ret[0] = bases[(val & 0x0C) >> 2];
     ret[1] = bases[(val & 0x03)];
@@ -583,6 +594,8 @@ void Stats::reportHtmlQuality(ofstream& ofs, string filteringType, string readNa
     ofs << "</div>\n";
     
     string alphabets[5] = {"A", "T", "C", "G", "mean"};
+    if(mOptions->isRNA)
+        alphabets[1]="U";
     string colors[5] = {"rgba(128,128,0,1.0)", "rgba(128,0,128,1.0)", "rgba(0,255,0,1.0)", "rgba(0,0,255,1.0)", "rgba(20,20,20,1.0)"};
     ofs << "\n<script type=\"text/javascript\">" << endl;
     string json_str = "var data=[";
@@ -658,6 +671,8 @@ void Stats::reportHtmlContents(ofstream& ofs, string filteringType, string readN
     ofs << "</div>\n";
     
     string alphabets[6] = {"A", "T", "C", "G", "N", "GC"};
+    if(mOptions->isRNA)
+        alphabets[1]="U";
     string colors[6] = {"rgba(128,128,0,1.0)", "rgba(128,0,128,1.0)", "rgba(0,255,0,1.0)", "rgba(0,0,255,1.0)", "rgba(255, 0, 0, 1.0)", "rgba(20,20,20,1.0)"};
     ofs << "\n<script type=\"text/javascript\">" << endl;
     string json_str = "var data=[";

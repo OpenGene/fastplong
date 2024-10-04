@@ -235,6 +235,8 @@ public:
     bool verbose;
     // the buffer size for writer
     size_t writerBufferSize;
+    // is direct RNA sequencing data, which contains U not T
+    bool isRNA;
 
 };
 

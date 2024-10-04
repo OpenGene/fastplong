@@ -17,8 +17,7 @@ public:
     // evaluate how many reads are stored in the input file
     void evaluateReadNum(long& readNum);
     string evalAdapterAndReadNum(long& readNum);
-    void evaluateSeqLen();
-    int computeSeqLen(string filename);
+    void evaluateSeqLenAndCheckRNA();
 
     static bool test();
     static string matchKnownAdapter(string seq);

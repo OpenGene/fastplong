@@ -17,6 +17,7 @@ Options::Options(){
     readsToProcess = 0;
     verbose = false;
     writerBufferSize = 0x01L<<22; // 4M writer buffer for per output by default
+    isRNA = false;
 }
 
 void Options::init() {

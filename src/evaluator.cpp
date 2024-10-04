@@ -13,21 +13,24 @@ Evaluator::Evaluator(Options* opt){
 Evaluator::~Evaluator(){
 }
 
-void Evaluator::evaluateSeqLen() {
-    if(!mOptions->in.empty())
-        mOptions->seqLen = computeSeqLen(mOptions->in);
-}
+void Evaluator::evaluateSeqLenAndCheckRNA() {
+    if(mOptions->in.empty()) {
+        return;
+    }
 
-int Evaluator::computeSeqLen(string filename) {
-    FastqReader reader(filename);
+    FastqReader reader(mOptions->in);
 
     long records = 0;
     bool reachedEOF = false;
+    bool isRNA = false;
 
     // get seqlen
     int seqlen=0;
-    while(records < 1000) {
+    long numT = 0;
+    long numU = 0;
+    while(records < 100) {
         Read* r = reader.read();
+        const char* seq = r->mSeq->data();
         if(!r) {
             reachedEOF = true;
             break;
@@ -35,11 +38,26 @@ int Evaluator::computeSeqLen(string filename) {
         int rlen = r->length();
         if(rlen > seqlen)
             seqlen = rlen;
+        for (int c=0; c<rlen; c++) {
+            const char base = seq[c];
+            if(base == 'T')
+                numT++;
+            else if(base == 'U')
+                numU++;
+        }
         records ++;
         delete r;
     }
+    if(numT > 0 && numU >0) {
+        error_exit("This data contains both U and T");
+    } else if (numU > 0) {
+        isRNA = true;
+        cerr << "RNA direct sequencing data" << endl;
+    }
 
-    return seqlen;
+    mOptions->seqLen = seqlen;
+    mOptions->isRNA = isRNA;
+
 }
 
 void Evaluator::evaluateReadNum(long& readNum) {

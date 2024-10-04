@@ -253,7 +253,7 @@ int main(int argc, char* argv[]){
 
     Evaluator eva(&opt);
     if(supportEvaluation) {
-        eva.evaluateSeqLen();
+        eva.evaluateSeqLenAndCheckRNA();
     }
 
     long readNum = 0;
