@@ -35,7 +35,7 @@ void JsonReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
 
     // summary
     ofs << "\t" << "\"summary\": {" << endl;
-    ofs << "\t\t" << "\"FASTPLONG_VERsion\": \""<< FASTPLONG_VER << "\"," << endl;
+    ofs << "\t\t" << "\"fastplong_version\": \""<< FASTPLONG_VER << "\"," << endl;
     ofs << "\t\t" << "\"before_filtering\": {" << endl;
     ofs << "\t\t\t" << "\"total_reads\":" << pre_total_reads << "," << endl; 
     ofs << "\t\t\t" << "\"total_bases\":" << pre_total_bases << "," << endl; 
