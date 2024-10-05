@@ -5,7 +5,6 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
 - [fastplong](#fastplong)
 - [simple usage](#simple-usage)
 - [get fastplong](#get-fastplong)
-  - [or download the latest prebuilt binary for Linux users](#or-download-the-latest-prebuilt-binary-for-linux-users)
   - [or compile from source](#or-compile-from-source)
     - [Step 1: install isa-l](#step-1-install-isa-l)
     - [step 2: install libdeflate](#step-2-install-libdeflate)
@@ -29,22 +28,14 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
   - [splitting by limiting file number](#splitting-by-limiting-file-number)
   - [splitting by limiting the lines of each file](#splitting-by-limiting-the-lines-of-each-file)
 - [all options](#all-options)
-- [citations](#citations)
 
 # simple usage
-* for single end data (not compressed)
 ```
 fastplong -i in.fq -o out.fq
 ```
-By default, the HTML report is saved to `fastplong.html` (can be specified with `-h` option), and the JSON report is saved to `fastplong.json` (can be specified with `-j` option).
+Both input and output can be gzip compressed. By default, the HTML report is saved to `fastplong.html` (can be specified with `-h` option), and the JSON report is saved to `fastplong.json` (can be specified with `-j` option). 
 
-## or download the latest prebuilt binary for Linux users
-This binary was compiled on CentOS, and tested on CentOS/Ubuntu
-```shell
-# download the latest build
-wget http://opengene.org/fastplong/fastplong
-chmod a+x ./fastplong
-```
+# get fastplong
 ## or compile from source
 `fastplong` depends on `libdeflate` and `isa-l` for fast decompression and compression of zipped data.
 
