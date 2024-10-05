@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
     cmd.add<string>("out", 'o', "read output file name", false, "");
     cmd.add<string>("failed_out", 0, "specify the file to store reads that cannot pass the filters.", false, "");
     cmd.add<int>("compression", 'z', "compression level for gzip output (1 ~ 9). 1 is fastest, 9 is smallest, default is 4.", false, 4);
-    cmd.add("stdin", 0, "input from STDIN. If the STDIN is interleaved paired-end FASTQ, please also add --interleaved_in.");
+    cmd.add("stdin", 0, "input from STDIN.");
     cmd.add("stdout", 0, "stream passing-filters reads to STDOUT. This option will result in interleaved FASTQ output for paired-end output. Disabled by default.");
     cmd.add<int>("reads_to_process", 0, "specify how many reads/pairs to be processed. Default 0 means process all reads.", false, 0);
     cmd.add("dont_overwrite", 0, "don't overwrite existing files. Overwritting is allowed by default.");
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
 
     // adapter
     cmd.add("disable_adapter_trimming", 'A', "adapter trimming is enabled by default. If this option is specified, adapter trimming is disabled");
-    cmd.add<string>("adapter_sequence", 'a', "the adapter for read. For SE data, if not specified, the adapter will be auto-detected. For PE data, this is used if R1/R2 are found not overlapped.", false, "auto");
+    cmd.add<string>("adapter_sequence", 'a', "the adapter for read.", false, "auto");
     cmd.add<string>("adapter_fasta", 0, "specify a FASTA file to trim both read by all the sequences in this FASTA file", false, "");
 
     // trimming
@@ -73,8 +73,8 @@ int main(int argc, char* argv[]){
     cmd.add("disable_quality_filtering", 'Q', "quality filtering is enabled by default. If this option is specified, quality filtering is disabled");
     cmd.add<int>("qualified_quality_phred", 'q', "the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified.", false, 15);
     cmd.add<int>("unqualified_percent_limit", 'u', "how many percents of bases are allowed to be unqualified (0~100). Default 40 means 40%", false, 40);
-    cmd.add<int>("n_base_limit", 'n', "if one read's number of N base is >n_base_limit, then this read/pair is discarded. Default is 5", false, 5);
-    cmd.add<int>("average_qual", 'e', "if one read's average quality score <avg_qual, then this read/pair is discarded. Default 0 means no requirement", false, 0);
+    cmd.add<int>("n_base_limit", 'n', "if one read's number of N base is >n_base_limit, then this read is discarded. Default is 5", false, 5);
+    cmd.add<int>("average_qual", 'e', "if one read's average quality score <avg_qual, then this read is discarded. Default 0 means no requirement", false, 0);
 
     // length filtering
     cmd.add("disable_length_filtering", 'L', "length filtering is enabled by default. If this option is specified, length filtering is disabled");
@@ -105,10 +105,6 @@ int main(int argc, char* argv[]){
     }
 
     if(argc == 1) {
-        //output citation information
-        cerr << "Citation:" <<endl;
-        cerr << "Shifu Chen. 2023. Ultrafast one-pass FASTQ data preprocessing, quality control, and deduplication using fastplong. iMeta 2: e107" << endl;
-        cerr << endl;
         return 0;
     }
 
