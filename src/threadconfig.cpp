@@ -28,7 +28,7 @@ void ThreadConfig::cleanup() {
         delete mInputList;
         mInputList = NULL;
     }
-    /*if(mPreStats1) {
+    if(mPreStats1) {
         delete mPreStats1;
         mPreStats1 = NULL;
     }
@@ -39,7 +39,7 @@ void ThreadConfig::cleanup() {
     if(mFilterResult) {
         delete mFilterResult;
         mFilterResult = NULL;
-    }*/
+    }
 }
 
 
