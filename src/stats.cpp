@@ -53,6 +53,9 @@ Stats::Stats(Options* opt, int guessedCycles, int bufferMargin){
     mKmerBufLen = 2<<(KMER_LEN * 2);
     mKmer = new long[mKmerBufLen];
     memset(mKmer, 0, sizeof(long)*mKmerBufLen);
+
+    memset(mBaseQualHistogram, 0, sizeof(long)*128);
+    memset(mMedianReadQualHistogram, 0, sizeof(long)*128);
 }
 
 void Stats::extendBuffer(int newBufLen){
@@ -228,6 +231,9 @@ void Stats::statRead(Read* r) {
     const char* seqstr = r->mSeq->c_str();
     const char* qualstr = r->mQuality->c_str();
 
+    int* qualHist = new int[128];
+    memset(qualHist, 0, sizeof(int)*128);
+
     int kmer = 0;
     bool needFullCompute = true;
     for(int i=0; i<len; i++) {
@@ -292,7 +298,24 @@ void Stats::statRead(Read* r) {
             }
         }
 
+        mBaseQualHistogram[qual]++;
+        qualHist[qual]++;
+
     }
+
+    //calculate the median
+    int total = 0;
+    char median = 0;
+    int half = len>>1;
+    while(true) {
+        total += qualHist[median];
+        if(total >= half)
+            break;
+        median++;
+    }
+    mMedianReadQualHistogram[median]++;
+
+    delete[] qualHist;
 
     mReads++;
 }
@@ -786,6 +809,12 @@ Stats* Stats::merge(vector<Stats*>& list) {
         // merge kMer
         for(int i=0; i<s->mKmerBufLen; i++) {
             s->mKmer[i] += list[t]->mKmer[i];
+        }
+
+        // merge base/read qual histogram
+        for(int i=0; i<128; i++) {
+            s->mBaseQualHistogram[i] += list[t]->mBaseQualHistogram[i];
+            s->mMedianReadQualHistogram[i] += list[t]->mMedianReadQualHistogram[i];
         }
     }
 

@@ -71,6 +71,8 @@ private:
     long *mCycleTotalBase;
     long *mCycleTotalQual;
     long *mKmer;
+    long mBaseQualHistogram[128];
+    long mMedianReadQualHistogram[128];
 
     map<string, double*> mQualityCurves;
     map<string, double*> mContentCurves;
