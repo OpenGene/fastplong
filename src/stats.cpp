@@ -245,6 +245,9 @@ void Stats::statRead(Read* r) {
         const char q20 = '5';
         const char q30 = '?';
 
+        mBaseQualHistogram[qual]++;
+        qualHist[qual]++;
+
         if(qual >= q30) {
             mCycleQ30Bases[b][i]++;
             mCycleQ20Bases[b][i]++;
@@ -298,22 +301,21 @@ void Stats::statRead(Read* r) {
             }
         }
 
-        mBaseQualHistogram[qual]++;
-        qualHist[qual]++;
-
     }
 
     //calculate the median
-    int total = 0;
-    char median = 0;
-    int half = len>>1;
-    while(true) {
-        total += qualHist[median];
-        if(total >= half)
-            break;
-        median++;
+    if(len > 0) {
+        int total = 0;
+        char median = 0;
+        int half = len>>1;
+        while(true) {
+            total += qualHist[median];
+            if(total > half)
+                break;
+            median++;
+        }
+        mMedianReadQualHistogram[median]++;
     }
-    mMedianReadQualHistogram[median]++;
 
     delete[] qualHist;
 
