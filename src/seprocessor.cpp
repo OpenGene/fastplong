@@ -114,7 +114,9 @@ bool SingleEndProcessor::process(){
         filterResults.push_back(configs[t]->getFilterResult());
     }
     Stats* finalPreStats = Stats::merge(preStats);
+    finalPreStats->calcLengthHistogram();
     Stats* finalPostStats = Stats::merge(postStats);
+    finalPostStats->calcLengthHistogram();
     FilterResult* finalFilterResult = FilterResult::merge(filterResults);
 
     // read filter results to the first thread's

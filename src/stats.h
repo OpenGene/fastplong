@@ -37,6 +37,7 @@ public:
     void reportHtmlKMER(ofstream& ofs, string filteringType);
     bool isLongRead();
     int getMeanLength();
+    void calcLengthHistogram();
 
 public:
     static string list2string(double* list, int size);
@@ -86,13 +87,25 @@ private:
     long mQ20Bases[8];
     long mQ30Bases[8];
     long mBaseContents[8];
+    long mQ5Total;
+    long mQ7Total;
+    long mQ10Total;
+    long mQ15Total;
     long mQ20Total;
     long mQ30Total;
+    long mQ40Total;
     bool summarized;
     long mKmerMax;
     long mKmerMin;
     int mKmerBufLen;
     long mLengthSum;
+    vector<int> mLengthVec;
+    int mMinLen;
+    int mMaxLen;
+    int mMedianLen;
+    int mN50Len;
+    map<int, int> mLengthHist;
+    bool mNeedCalcLength;
 };
 
 #endif

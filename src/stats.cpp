@@ -18,11 +18,23 @@ Stats::Stats(Options* opt, int guessedCycles, int bufferMargin){
 
     mCycles = guessedCycles;
     mBases = 0;
+    mQ5Total = 0;
+    mQ7Total = 0;
+    mQ10Total = 0;
+    mQ15Total = 0;
     mQ20Total = 0;
     mQ30Total = 0;
+    mQ40Total = 0;
     summarized = false;
     mKmerMin = 0;
     mKmerMax = 0;
+
+
+    mMinLen = 0;
+    mMaxLen = 0;
+    mMedianLen = 0;
+    mN50Len = 0;
+    mNeedCalcLength = true;
 
     // extend the buffer to make sure it's long enough
     mBufLen = guessedCycles + bufferMargin;
@@ -159,6 +171,34 @@ void Stats::summarize(bool forced) {
         mQ30Total += mQ30Bases[i];
     }
 
+    for(char c=40; c<127-33; c++) {
+        mQ40Total += mBaseQualHistogram[c+33];
+    }
+    mQ30Total = mQ40Total;
+    for(char c=30; c<40; c++) {
+        mQ30Total += mBaseQualHistogram[c+33];
+    }
+    mQ20Total = mQ30Total;
+    for(char c=20; c<30; c++) {
+        mQ20Total += mBaseQualHistogram[c+33];
+    }
+    mQ15Total = mQ20Total;
+    for(char c=15; c<20; c++) {
+        mQ15Total += mBaseQualHistogram[c+33];
+    }
+    mQ10Total = mQ15Total;
+    for(char c=10; c<15; c++) {
+        mQ10Total += mBaseQualHistogram[c+33];
+    }
+    mQ7Total = mQ10Total;
+    for(char c=7; c<10; c++) {
+        mQ7Total += mBaseQualHistogram[c+33];
+    }
+    mQ5Total = mQ7Total;
+    for(char c=5; c<7; c++) {
+        mQ5Total += mBaseQualHistogram[c+33];
+    }
+
 
     // quality curve for mean qual
     double* meanQualCurve = new double[mCycles];
@@ -222,6 +262,9 @@ int Stats::getMeanLength() {
 
 void Stats::statRead(Read* r) {
     int len = r->length();
+
+    mLengthVec.push_back(len);
+    mNeedCalcLength = true;
 
     mLengthSum += len;
 
@@ -320,6 +363,40 @@ void Stats::statRead(Read* r) {
     delete[] qualHist;
 
     mReads++;
+}
+
+void Stats::calcLengthHistogram() {
+    for(size_t i=0; i< mLengthVec.size(); i++) {
+        int len = mLengthVec[i];
+        if(mLengthHist.count(len) > 0) {
+            mLengthHist[len] ++;
+        } else {
+            mLengthHist[len] = 1;
+        }
+    }
+
+    map<int, int>::iterator iter;
+    long totalBase = 0;
+    int readnum = 0;
+    mN50Len = 0;
+    mMedianLen = 0;
+    if(!mLengthHist.empty()) {
+        mMinLen = mLengthHist.begin()->first;
+        mMaxLen = mLengthHist.rbegin()->first;
+    }
+    for(iter = mLengthHist.begin(); iter != mLengthHist.end(); iter++) {
+        totalBase += iter->first * iter->second;
+        if(mN50Len == 0 && totalBase > mLengthSum / 2)
+            mN50Len = iter->first;
+        readnum += iter->second;
+        if(mMedianLen == 0 &&readnum > mLengthVec.size() / 2) 
+            mMedianLen = iter->first;
+
+        if(mMedianLen>0 && mN50Len>0)
+            break;
+    }
+
+    mNeedCalcLength = false;
 }
 
 int Stats::base2val(char base) {
@@ -791,6 +868,10 @@ Stats* Stats::merge(vector<Stats*>& list) {
         // merge read number
         s->mReads += list[t]->mReads;
         s->mLengthSum += list[t]->mLengthSum;
+
+        // merge length vector
+        s->mLengthVec.reserve(s->mLengthVec.size() + list[t]->mLengthVec.size());
+        s->mLengthVec.insert(s->mLengthVec.end(), list[t]->mLengthVec.begin(), list[t]->mLengthVec.end());
 
         // merge per cycle counting for different bases
         for(int i=0; i<8; i++){
