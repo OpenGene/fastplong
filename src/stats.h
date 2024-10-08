@@ -80,6 +80,8 @@ private:
     map<string, long> mOverRepSeq;
     map<string, long*> mOverRepSeqDist;
 
+    //qual-length distribution
+    map<char, vector<int>> mQualLength;
 
     int mCycles;
     int mBufLen;

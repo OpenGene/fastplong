@@ -358,6 +358,12 @@ void Stats::statRead(Read* r) {
             median++;
         }
         mMedianReadQualHistogram[median]++;
+
+        map<char, vector<int>>::iterator iter = mQualLength.find(median);
+        if(iter == mQualLength.end()) {
+            mQualLength[median] = vector<int>();
+        }
+        mQualLength[median].push_back(len);
     }
 
     delete[] qualHist;
@@ -898,6 +904,17 @@ Stats* Stats::merge(vector<Stats*>& list) {
         for(int i=0; i<128; i++) {
             s->mBaseQualHistogram[i] += list[t]->mBaseQualHistogram[i];
             s->mMedianReadQualHistogram[i] += list[t]->mMedianReadQualHistogram[i];
+        }
+
+        // merge qual-length distribution
+        map<char, vector<int>>::iterator iter;
+        map<char, vector<int>>::iterator overallIter;
+        for(iter = list[t]->mQualLength.begin(); iter != list[t]->mQualLength.end(); iter++) {
+            overallIter = s->mQualLength.find(iter->first);
+            if(overallIter == s->mQualLength.end()) {
+                s->mQualLength[iter->first] = vector<int>();
+            }
+            s->mQualLength[iter->first].insert(s->mQualLength[iter->first].end(), iter->second.begin(), iter->second.end());
         }
     }
 
