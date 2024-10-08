@@ -30,11 +30,11 @@ void Evaluator::evaluateSeqLenAndCheckRNA() {
     long numU = 0;
     while(records < 100) {
         Read* r = reader.read();
-        const char* seq = r->mSeq->data();
         if(!r) {
             reachedEOF = true;
             break;
         }
+        const char* seq = r->mSeq->data();
         int rlen = r->length();
         if(rlen > seqlen)
             seqlen = rlen;
