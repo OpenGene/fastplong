@@ -69,6 +69,7 @@ Stats::Stats(Options* opt, int guessedCycles, int bufferMargin){
 
     memset(mBaseQualHistogram, 0, sizeof(long)*128);
     memset(mMedianReadQualHistogram, 0, sizeof(long)*128);
+    memset(mMedianReadQualBases, 0, sizeof(long)*128);
 }
 
 void Stats::extendBuffer(int newBufLen){
@@ -359,6 +360,7 @@ void Stats::statRead(Read* r) {
             median++;
         }
         mMedianReadQualHistogram[median]++;
+        mMedianReadQualBases[median]+=len;
 
         map<char, vector<int>>::iterator iter = mQualLength.find(median);
         if(iter == mQualLength.end()) {
@@ -600,17 +602,19 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
 
     ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
 
-    int total = 50; // to q50
+    int total = 40; // to q40
     long *x = new long[total];
     for(int i=0; i<total; i++) {
         x[i] = i;
     }
-    double* percents = new double[total];
-    memset(percents, 0, sizeof(double)*total);
-    if(mReads > 0) {
-        for(int i=0; i<total; i++) {
-            percents[i] = (double)mMedianReadQualHistogram[i+33] * 100.0 / (double)mReads;
-        }
+
+    double* percentReads = new double[total];
+    memset(percentReads, 0, sizeof(double)*total);
+    double* percentBases = new double[total];
+    memset(percentBases, 0, sizeof(double)*total);
+    for(int i=0; i<total; i++) {
+        percentReads[i] = (double)mMedianReadQualHistogram[i+33] * 100.0 / (double)mReads;
+        percentBases[i] = (double)mMedianReadQualBases[i+33] * 100.0 / (double)mBases;
     }
 
     ofs << "<div id='insert_size_figure'>\n";
@@ -618,26 +622,42 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
     ofs << "</div>\n";
 
     ofs << "\n<script type=\"text/javascript\">" << endl;
-    string json_str = "var data=[";
+    string json_str = "var readNum=";
 
     json_str += "{";
     json_str += "x:[" + Stats::list2string(x, total) + "],";
-    json_str += "y:[" + Stats::list2string(percents, total) + "],";
-    json_str += "name: 'Percent (%)  ',";
+    json_str += "y:[" + Stats::list2string(percentReads, total) + "],";
+    json_str += "name: '% reads',";
     json_str += "type:'bar',";
     json_str += "line:{color:'rgba(128,0,128,1.0)', width:1}\n";
     json_str += "}";
 
-    json_str += "];\n";
+    json_str += ";\n";
 
-    json_str += "var layout={title:'Read median quality distribution', xaxis:{title:'read median quality score'}, yaxis:{title:'read number percent (%)'}};\n";
+
+    json_str += "var baseNum=";
+
+    json_str += "{";
+    json_str += "x:[" + Stats::list2string(x, total) + "],";
+    json_str += "y:[" + Stats::list2string(percentBases, total) + "],";
+    json_str += "name: '% accumulated bases',";
+    json_str += "type:'bar',";
+    json_str += "line:{color:'rgba(128,128,0,1.0)', width:1}\n";
+    json_str += "}";
+
+    json_str += ";\n";
+
+    json_str += "var data = [readNum, baseNum];;\n";
+
+    json_str += "var layout={legend: {x: 0, y: 1.0},title:'Read median quality distribution', xaxis:{title:'read median quality score'}, yaxis:{title:'Percent (%)'}};\n";
     json_str += "Plotly.newPlot('plot_median_qual_hist_" + divName + "', data, layout);\n";
 
     ofs << json_str;
     ofs << "</script>" << endl;
 
     delete[] x;
-    delete[] percents;
+    delete[] percentReads;
+    delete[] percentBases;
 }
 
 void Stats::reportHtmlBasicInfo(ofstream& ofs, string filteringType) {
@@ -984,6 +1004,7 @@ Stats* Stats::merge(vector<Stats*>& list) {
         for(int i=0; i<128; i++) {
             s->mBaseQualHistogram[i] += list[t]->mBaseQualHistogram[i];
             s->mMedianReadQualHistogram[i] += list[t]->mMedianReadQualHistogram[i];
+            s->mMedianReadQualBases[i] += list[t]->mMedianReadQualBases[i];
         }
 
         // merge qual-length distribution

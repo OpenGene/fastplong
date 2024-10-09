@@ -75,6 +75,7 @@ private:
     long *mKmer;
     long mBaseQualHistogram[128];
     long mMedianReadQualHistogram[128];
+    long mMedianReadQualBases[128];
 
     map<string, double*> mQualityCurves;
     map<string, double*> mContentCurves;
