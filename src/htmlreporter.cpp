@@ -42,98 +42,29 @@ string HtmlReporter::getPercents(long numerator, long denominator) {
 }
 
 void HtmlReporter::printSummary(ofstream& ofs, FilterResult* result, Stats* preStats1, Stats* postStats1) {
-    long pre_total_reads = preStats1->getReads();
-
-    long pre_total_bases = preStats1->getBases();
-
-    long pre_q20_bases = preStats1->getQ20();
-
-    long pre_q30_bases = preStats1->getQ30();
-
-    long pre_total_gc = preStats1->getGCNumber();
-
-    long post_total_reads = postStats1->getReads();
-
-    long post_total_bases = postStats1->getBases();
-
-    long post_q20_bases = postStats1->getQ20();
-
-    long post_q30_bases = postStats1->getQ30();
-
-    long post_total_gc = postStats1->getGCNumber();
 
     ofs << endl;
-    ofs << "<h1 style='text-align:left;'><a href='https://github.com/OpenGene/fastplong' target='_blank' style='color:#663355;text-decoration:none;'>" + mOptions->reportTitle + "</a>"<<endl;
+    ofs << "<h3 style='text-align:left;'><a href='https://github.com/OpenGene/fastplong' target='_blank' style='color:#663355;text-decoration:none;'>" + mOptions->reportTitle + "</a><a href='https://github.com/OpenGene/fastplong' target='_blank' style='font-size:-2;text-decoration:none;'>(fastplong version v" + string(FASTPLONG_VER)+ ")</a></h3>"<<endl;
     ofs << "<div class='section_div'>\n";
-    ofs << "<div class='section_title' onclick=showOrHide('summary')><a name='summary'>Summary</a></div>\n";
+    ofs << "<div class='section_title' onclick=showOrHide('summary')><a name='summary'>Summary</a> </div>\n";
     ofs << "<div id='summary'>\n";
 
-    ofs << "<div class='subsection_title' onclick=showOrHide('general')>General</div>\n";
-    ofs << "<div id='general'>\n";
-    ofs << "<table class='summary_table'>\n";
-    outputRow(ofs, "fastplong version:", string(FASTPLONG_VER)+ " (<a href='https://github.com/OpenGene/fastplong'>https://github.com/OpenGene/fastplong</a>)");
-
-    // report read length change
-    outputRow(ofs, "mean length before filtering:", to_string(preStats1->getMeanLength()) + "bp");
-    outputRow(ofs, "mean length after filtering:", to_string(postStats1->getMeanLength()) + "bp");
-
-
-    if(mOptions->adapterCuttingEnabled()) {
-        if(!mOptions->adapter.detectedAdapter.empty())
-            outputRow(ofs, "Detected adapter:", mOptions->adapter.detectedAdapter);
-    }
-    ofs << "</table>\n";
-    ofs << "</div>\n";
-
-    ofs << "<div class='subsection_title' onclick=showOrHide('before_filtering_summary')>Before filtering</div>\n";
-    ofs << "<div id='before_filtering_summary'>\n";
-    ofs << "<table class='summary_table'>\n";
-    outputRow(ofs, "total reads:", formatNumber(pre_total_reads));
-    outputRow(ofs, "total bases:", formatNumber(pre_total_bases));
-    outputRow(ofs, "Q20 bases:", formatNumber(pre_q20_bases) + " (" + getPercents(pre_q20_bases,pre_total_bases) + "%)");
-    outputRow(ofs, "Q30 bases:", formatNumber(pre_q30_bases) + " (" + getPercents(pre_q30_bases, pre_total_bases) + "%)");
-    outputRow(ofs, "GC content:", getPercents(pre_total_gc,pre_total_bases) + "%");
-    ofs << "</table>\n";
-    ofs << "</div>\n";
-
-    ofs << "<div class='subsection_title' onclick=showOrHide('after_filtering_summary')>After filtering</div>\n";
-    ofs << "<div id='after_filtering_summary'>\n";
-    ofs << "<table class='summary_table'>\n";
-    outputRow(ofs, "total reads:", formatNumber(post_total_reads));
-    outputRow(ofs, "total bases:", formatNumber(post_total_bases));
-    outputRow(ofs, "Q20 bases:", formatNumber(post_q20_bases) + " (" + getPercents(post_q20_bases, post_total_bases) + "%)");
-    outputRow(ofs, "Q30 bases:", formatNumber(post_q30_bases) + " (" + getPercents(post_q30_bases, post_total_bases) + "%)");
-    outputRow(ofs, "GC content:", getPercents(post_total_gc,post_total_bases) + "%");
-    ofs << "</table>\n";
-    ofs << "</div>\n";
-
     if(result) {
-        ofs << "<div class='subsection_title' onclick=showOrHide('filtering_result')>Filtering result</div>\n";
+        ofs << "<div class='subsection_title'>Filtering result</div>\n";
         ofs << "<div id='filtering_result'>\n";
-        result -> reportHtml(ofs, pre_total_reads, pre_total_bases);
+        result -> reportHtml(ofs, preStats1->getReads(), preStats1->getBases());
         ofs << "</div>\n";
     }
 
     ofs << "</div>\n";
     ofs << "</div>\n";
 
-    if(result && mOptions->adapterCuttingEnabled()) {
+    /*if(result && mOptions->adapterCuttingEnabled()) {
         ofs << "<div class='section_div'>\n";
         ofs << "<div class='section_title' onclick=showOrHide('adapters')><a name='summary'>Adapters</a></div>\n";
         ofs << "<div id='adapters'>\n";
 
         result->reportAdapterHtml(ofs, pre_total_bases);
-
-        ofs << "</div>\n";
-        ofs << "</div>\n";
-    }
-
-    /*if(mOptions->duplicate.enabled) {
-        ofs << "<div class='section_div'>\n";
-        ofs << "<div class='section_title' onclick=showOrHide('duplication')><a name='summary'>Duplication</a></div>\n";
-        ofs << "<div id='duplication'>\n";
-
-        reportDuplication(ofs);
 
         ofs << "</div>\n";
         ofs << "</div>\n";
@@ -149,6 +80,23 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
 
     printSummary(ofs, result, preStats1, postStats1);
 
+    // basic statistics
+    ofs << "<div class='section_div'>\n";
+    ofs << "<div class='section_title' onclick=showOrHide('basic_stat')><a name='summary'>Basic statistics</a></div>\n";
+    ofs << "<table id='basic_stat' class='section_table'>\n";
+    ofs << "<tr><td>\n";
+    if(preStats1) {
+        preStats1 -> reportHtmlBasicInfo(ofs, "Before filtering");
+    }
+    ofs << "</td><td>\n";
+    if(postStats1) {
+        postStats1 -> reportHtmlBasicInfo(ofs, "After filtering");
+    }
+    ofs << "</td></tr>\n";
+    ofs << "</table>\n";
+    ofs << "</div>\n";
+
+    // quality statistics
     ofs << "<div class='section_div'>\n";
     ofs << "<div class='section_title' onclick=showOrHide('quality_stat')><a name='summary'>Quality statistics</a></div>\n";
     ofs << "<table id='quality_stat' class='section_table'>\n";
@@ -164,6 +112,23 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "</table>\n";
     ofs << "</div>\n";
 
+    // median quality histogram
+    ofs << "<div class='section_div'>\n";
+    ofs << "<div class='section_title' onclick=showOrHide('median_qual_stat')><a name='summary'>Median qual histogram</a></div>\n";
+    ofs << "<table id='median_qual_stat' class='section_table'>\n";
+    ofs << "<tr><td>\n";
+    if(preStats1) {
+        preStats1 -> reporHtmlMedianQualHist(ofs, "Before filtering");
+    }
+    ofs << "</td><td>\n";
+    if(postStats1) {
+        postStats1 -> reporHtmlMedianQualHist(ofs, "After filtering");
+    }
+    ofs << "</td></tr>\n";
+    ofs << "</table>\n";
+    ofs << "</div>\n";
+
+    // content statistics
     ofs << "<div class='section_div'>\n";
     ofs << "<div class='section_title' onclick=showOrHide('contents_stat')><a name='summary'>Base contents statistics</a></div>\n";
     ofs << "<table id='contents_stat' class='section_table'>\n";
@@ -179,6 +144,7 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "</table>\n";
     ofs << "</div>\n";
 
+    // kmer statistics
     ofs << "<div class='section_div'>\n";
     ofs << "<div class='section_title' onclick=showOrHide('kmer_stat')><a name='summary'>k-mer statistics</a></div>\n";
     ofs << "<table id='kmer_stat' class='section_table'>\n";
@@ -210,7 +176,7 @@ void HtmlReporter::printHeader(ofstream& ofs){
 void HtmlReporter::printCSS(ofstream& ofs){
     ofs << "<style type=\"text/css\">" << endl;
     ofs << "td {border:1px solid #dddddd;padding:5px;font-size:12px;}" << endl;
-    ofs << "table {border:1px solid #999999;padding:2x;border-collapse:collapse; width:800px}" << endl;
+    ofs << "table {border:1px solid #999999;padding:2x;border-collapse:collapse;width:100%}" << endl;
     ofs << ".col1 {width:240px; font-weight:bold;}" << endl;
     ofs << ".adapter_col {width:500px; font-size:10px;}" << endl;
     ofs << "img {padding:30px;}" << endl;
@@ -219,7 +185,7 @@ void HtmlReporter::printCSS(ofstream& ofs){
     ofs << "a:visited {color: #999999}" << endl;
     ofs << ".alignleft {text-align:left;}" << endl;
     ofs << ".alignright {text-align:right;}" << endl;
-    ofs << ".figure {width:800px;height:600px;}" << endl;
+    ofs << ".figure {width:680px;height:600px;}" << endl;
     ofs << ".header {color:#ffffff;padding:1px;height:20px;background:#000000;}" << endl;
     ofs << ".section_title {color:#ffffff;font-size:20px;padding:5px;text-align:left;background:#663355; margin-top:10px;}" << endl;
     ofs << ".section_table {width:100%;}" << endl;

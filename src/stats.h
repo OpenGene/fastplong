@@ -31,7 +31,8 @@ public:
     // a port of JSON report
     void reportJson(ofstream& ofs, string padding);
     // a port of HTML report
-    void reportHtml(ofstream& ofs, string filteringType);
+    void reporHtmlMedianQualHist(ofstream& ofs, string filteringType);
+    void reportHtmlBasicInfo(ofstream& ofs, string filteringType);
     void reportHtmlQuality(ofstream& ofs, string filteringType);
     void reportHtmlContents(ofstream& ofs, string filteringType);
     void reportHtmlKMER(ofstream& ofs, string filteringType);

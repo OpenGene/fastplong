@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <sstream>
 #include "util.h"
+#include "htmlreporter.h"
 
 #define KMER_LEN 5
 
@@ -589,14 +590,80 @@ string Stats::list2string(long* list, int size) {
     return ss.str();
 }
 
-void Stats::reportHtml(ofstream& ofs, string filteringType) {
-    reportHtmlQuality(ofs, filteringType);
-    reportHtmlContents(ofs, filteringType);
-    reportHtmlKMER(ofs, filteringType);
-}
-
 bool Stats::isLongRead() {
     return mCycles > 300;
+}
+
+void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
+    string subsection = filteringType + ": Read median quality statistics";
+    string divName = replace(subsection, " ", "_");
+
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
+
+    int total = 50; // to q50
+    long *x = new long[total];
+    for(int i=0; i<total; i++) {
+        x[i] = i;
+    }
+    double* percents = new double[total];
+    memset(percents, 0, sizeof(double)*total);
+    if(mReads > 0) {
+        for(int i=0; i<total; i++) {
+            percents[i] = (double)mMedianReadQualHistogram[i+33] * 100.0 / (double)mReads;
+        }
+    }
+
+    ofs << "<div id='insert_size_figure'>\n";
+    ofs << "<div class='figure' id='plot_median_qual_hist_" + divName + "' style='height:400px;'></div>\n";
+    ofs << "</div>\n";
+
+    ofs << "\n<script type=\"text/javascript\">" << endl;
+    string json_str = "var data=[";
+
+    json_str += "{";
+    json_str += "x:[" + Stats::list2string(x, total) + "],";
+    json_str += "y:[" + Stats::list2string(percents, total) + "],";
+    json_str += "name: 'Percent (%)  ',";
+    json_str += "type:'bar',";
+    json_str += "line:{color:'rgba(128,0,128,1.0)', width:1}\n";
+    json_str += "}";
+
+    json_str += "];\n";
+
+    json_str += "var layout={title:'Read median quality distribution', xaxis:{title:'read median quality score'}, yaxis:{title:'read number percent (%)'}};\n";
+    json_str += "Plotly.newPlot('plot_median_qual_hist_" + divName + "', data, layout);\n";
+
+    ofs << json_str;
+    ofs << "</script>" << endl;
+
+    delete[] x;
+    delete[] percents;
+}
+
+void Stats::reportHtmlBasicInfo(ofstream& ofs, string filteringType) {
+    // KMER
+    string subsection = filteringType + ": Basic statistics";
+    string divName = replace(subsection, " ", "_");
+    divName = replace(divName, ":", "_");
+
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
+    ofs << "<table>\n";
+    HtmlReporter::outputRow(ofs, "total reads:", HtmlReporter::formatNumber(mReads));
+    HtmlReporter::outputRow(ofs, "total bases:", HtmlReporter::formatNumber(mBases));
+    HtmlReporter::outputRow(ofs, "minimum length:", HtmlReporter::formatNumber(mMinLen));
+    HtmlReporter::outputRow(ofs, "maximum length:", HtmlReporter::formatNumber(mMaxLen));
+    HtmlReporter::outputRow(ofs, "median length:", HtmlReporter::formatNumber(mMedianLen));
+    HtmlReporter::outputRow(ofs, "mean length:", HtmlReporter::formatNumber(getMeanLength()));
+    HtmlReporter::outputRow(ofs, "N50 length:", HtmlReporter::formatNumber(mN50Len));
+    HtmlReporter::outputRow(ofs, "GC content:", HtmlReporter::getPercents(getGCNumber(),mBases) + "%");
+    HtmlReporter::outputRow(ofs, "Q5 bases:", HtmlReporter::formatNumber(mQ5Total) + " (" + HtmlReporter::getPercents(mQ5Total,mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q7 bases:", HtmlReporter::formatNumber(mQ7Total) + " (" + HtmlReporter::getPercents(mQ7Total, mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q10 bases:", HtmlReporter::formatNumber(mQ10Total) + " (" + HtmlReporter::getPercents(mQ10Total,mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q15 bases:", HtmlReporter::formatNumber(mQ15Total) + " (" + HtmlReporter::getPercents(mQ15Total, mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q20 bases:", HtmlReporter::formatNumber(mQ20Total) + " (" + HtmlReporter::getPercents(mQ20Total,mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q30 bases:", HtmlReporter::formatNumber(mQ30Total) + " (" + HtmlReporter::getPercents(mQ30Total, mBases) + "%)");
+    HtmlReporter::outputRow(ofs, "Q40 bases:", HtmlReporter::formatNumber(mQ40Total) + " (" + HtmlReporter::getPercents(mQ40Total, mBases) + "%)");
+    ofs << "</table>\n";
 }
 
 void Stats::reportHtmlKMER(ofstream& ofs, string filteringType) {
@@ -607,7 +674,7 @@ void Stats::reportHtmlKMER(ofstream& ofs, string filteringType) {
     divName = replace(divName, ":", "_");
     string title = "";
 
-    ofs << "<div class='subsection_title'><a title='click to hide/show' onclick=showOrHide('" << divName << "')>" + subsection + "</a></div>\n";
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
     ofs << "<div  id='" << divName << "'>\n";
     ofs << "<div class='sub_section_tips'>Darker background means larger counts. The count will be shown on mouse over.</div>\n";
     ofs << "<table class='kmer_table' style='width:680px;'>\n";
@@ -640,16 +707,29 @@ string Stats::makeKmerTD(int i, int j) {
     string kmer = first+last;
     double meanBases = (double)(mBases+1) / mKmerBufLen;
     double prop = val / meanBases;
-    double frac = 0.5;
+    /*double frac = 0.5;
     if(prop > 2.0) 
         frac = (prop-2.0)/20.0 + 0.5;
     else if(prop< 0.5)
         frac = prop;
 
-    frac = max(0.01, min(1.0, frac));
-    int r = (1.0-frac) * 255;
-    int g = r;
-    int b = r;
+    frac = max(0.01, min(1.0, frac));*/
+    int r =0;
+    int g = 0;
+    int b = 0;
+    if(prop <= 0.3){
+        double frac = prop*2.0;
+        b = 255 - 256*frac;
+        g = 255*frac;
+        r = b*frac;
+    } else if(prop>3.0){
+        double frac = 2.0/prop;
+        r = 255  - 128*frac;
+        g = 128*frac;
+        b = r*frac;
+    } else {
+        r = g = b = 196;
+    }
     stringstream ss;
     ss << "<td style='background:#"; 
     if(r<16)
@@ -695,7 +775,7 @@ void Stats::reportHtmlQuality(ofstream& ofs, string filteringType) {
     divName = replace(divName, ":", "_");
     string title = "";
 
-    ofs << "<div class='subsection_title'><a title='click to hide/show' onclick=showOrHide('" << divName << "')>" + subsection + "</a></div>\n";
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
     ofs << "<div id='" + divName + "'>\n";
     ofs << "<div class='sub_section_tips'>Value of each position will be shown on mouse over.</div>\n";
     ofs << "<div class='figure' id='plot_" + divName + "'></div>\n";
@@ -772,7 +852,7 @@ void Stats::reportHtmlContents(ofstream& ofs, string filteringType) {
     divName = replace(divName, ":", "_");
     string title = "";
 
-    ofs << "<div class='subsection_title'><a title='click to hide/show' onclick=showOrHide('" << divName << "')>" + subsection + "</a></div>\n";
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
     ofs << "<div id='" + divName + "'>\n";
     ofs << "<div class='sub_section_tips'>Value of each position will be shown on mouse over.</div>\n";
     ofs << "<div class='figure' id='plot_" + divName + "'></div>\n";
