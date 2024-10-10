@@ -1,4 +1,5 @@
 #include "adaptertrimmer.h"
+#include "editdistance.h"
 
 AdapterTrimmer::AdapterTrimmer(){
 }
@@ -33,8 +34,9 @@ bool AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<stri
     return trimmed;
 }
 
-bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, int matchReq) {
-    const int allowOneMismatchForEach = 8;
+bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+    const int WINDOW = 200;
+    const int PATTERN_LEN = 16;
 
     int rlen = r->length();
     int alen = adapterseq.length();
@@ -42,15 +44,30 @@ bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adap
     const char* adata = adapterseq.c_str();
     const char* rdata = r->mSeq->c_str();
 
-    const int WINDOW = 200;
+    if(rlen < PATTERN_LEN)
+        return false;
+
+    int plen = min(PATTERN_LEN, alen);
 
     bool found = false;
-
+    int pos = -1;
+    for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
+        if(edit_distance(rdata + p, plen, adata + alen - plen, plen) < round(edMax * plen)) {
+            // extend to compare the whole adapter
+            int cmplen = min(p+plen, alen);
+            if(edit_distance(rdata + p + plen - cmplen, cmplen, adata + alen - cmplen, cmplen) < round(edMax * cmplen) ){
+                fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
+                r->trimFront(p + plen);
+                return true;
+            }
+        }
+    }
     return false;
 }
 
-bool AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, int matchReq) {
-    const int allowOneMismatchForEach = 8;
+bool AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+    const int WINDOW = 200;
+    const int PATTERN_LEN = 16;
 
     int rlen = r->length();
     int alen = adapterseq.length();
@@ -58,59 +75,25 @@ bool AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapte
     const char* adata = adapterseq.c_str();
     const char* rdata = r->mSeq->c_str();
 
-    if(alen < matchReq)
+    if(rlen < PATTERN_LEN)
         return false;
 
-    int pos=0;
+    int plen = min(PATTERN_LEN, alen);
+
     bool found = false;
-    int start = 0;
-    if(alen >= 16)
-        start = -4;
-    else if(alen >= 12)
-        start = -3;
-    else if(alen >= 8)
-        start = -2;
-    // we start from negative numbers since the Illumina adapter dimer usually have the first A skipped as A-tailing
-    for(pos = start; pos<rlen-matchReq; pos++) {
-        int cmplen = min(rlen - pos, alen);
-        int allowedMismatch = cmplen/allowOneMismatchForEach;
-        int mismatch = 0;
-        bool matched = true;
-        for(int i=max(0, -pos); i<cmplen; i++) {
-            if( adata[i] != rdata[i+pos] ){
-                mismatch++;
-                if(mismatch > allowedMismatch) {
-                    matched = false;
-                    break;
-                }
+    int pos = -1;
+    //from tail to front
+    for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
+        if(edit_distance(rdata + rlen - plen -p, plen, adata, plen) < round(edMax * plen)) {
+            // extend to compare the whole adapter
+            int cmplen = min(p+plen, alen);
+            if(edit_distance(rdata + rlen -plen - p, cmplen, adata, cmplen) < round(edMax * cmplen) ){
+                fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
+                r->resize(rlen - plen -p);
+                return true;
             }
         }
-        if(matched) {
-            found = true;
-            break;
-        }
-
     }
-
-    if(found) {
-        if(pos < 0) {
-            string adapter = adapterseq.substr(0, alen+pos);
-            r->mSeq->resize(0);
-            r->mQuality->resize(0);
-            if(fr) {
-                fr->addAdapterTrimmed(adapter);
-            }
-
-        } else {
-            string adapter = r->mSeq->substr(pos, rlen-pos);
-            r->resize(pos);
-            if(fr) {
-                fr->addAdapterTrimmed(adapter);
-            }
-        }
-        return true;
-    }
-
     return false;
 }
 

@@ -15,8 +15,8 @@ public:
     AdapterTrimmer();
     ~AdapterTrimmer();
 
-    static bool trimBySequenceStart(Read* r1, FilterResult* fr, string& adapter, int matchReq = 4);
-    static bool trimBySequenceEnd(Read* r1, FilterResult* fr, string& adapter, int matchReq = 4);
+    static bool trimBySequenceStart(Read* r1, FilterResult* fr, string& adapter, double edMax = 0.2);
+    static bool trimBySequenceEnd(Read* r1, FilterResult* fr, string& adapter, double edMax = 0.2);
     static bool trimByMultiSequences(Read* r1, FilterResult* fr, vector<string>& adapterList, bool incTrimmedCounter = true);
     static bool test();
 
