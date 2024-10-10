@@ -42,58 +42,9 @@ bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adap
     const char* adata = adapterseq.c_str();
     const char* rdata = r->mSeq->c_str();
 
-    if(alen < matchReq)
-        return false;
+    const int WINDOW = 200;
 
-    int pos=0;
     bool found = false;
-    int start = 0;
-    if(alen >= 16)
-        start = -4;
-    else if(alen >= 12)
-        start = -3;
-    else if(alen >= 8)
-        start = -2;
-    // we start from negative numbers since the Illumina adapter dimer usually have the first A skipped as A-tailing
-    for(pos = start; pos<rlen-matchReq; pos++) {
-        int cmplen = min(rlen - pos, alen);
-        int allowedMismatch = cmplen/allowOneMismatchForEach;
-        int mismatch = 0;
-        bool matched = true;
-        for(int i=max(0, -pos); i<cmplen; i++) {
-            if( adata[i] != rdata[i+pos] ){
-                mismatch++;
-                if(mismatch > allowedMismatch) {
-                    matched = false;
-                    break;
-                }
-            }
-        }
-        if(matched) {
-            found = true;
-            break;
-        }
-
-    }
-
-    if(found) {
-        if(pos < 0) {
-            string adapter = adapterseq.substr(0, alen+pos);
-            r->mSeq->resize(0);
-            r->mQuality->resize(0);
-            if(fr) {
-                fr->addAdapterTrimmed(adapter);
-            }
-
-        } else {
-            string adapter = r->mSeq->substr(pos, rlen-pos);
-            r->resize(pos);
-            if(fr) {
-                fr->addAdapterTrimmed(adapter);
-            }
-        }
-        return true;
-    }
 
     return false;
 }

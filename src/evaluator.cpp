@@ -202,6 +202,8 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
             if(adapter.length() > 16){
                 cerr << "Read start adapter: " << adapter << endl;
                 mOptions->adapter.sequenceStart = adapter;
+            } else {
+                cerr << "Read start adapter (too short): " << adapter << endl;
             }
         }
     }
@@ -241,7 +243,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
                 cerr << "Read end adapter: " << adapter << endl;
                 mOptions->adapter.sequenceEnd = adapter;
             } else {
-                cerr << "Read end adapter not found with seed: " << adapter << endl;
+                cerr << "Read end adapter (too short): " << adapter << endl;
             }
         }
     }
@@ -271,10 +273,18 @@ int Evaluator::getTopKey(unsigned int* counts, int keylen) {
             atcg[baseOfBit]++;
         }
         bool lowComplexity = false;
+        int zeroNum = 0;
         for(int b=0; b<4; b++) {
             if(atcg[b] >= keylen-4)
                 lowComplexity=true;
+            if(atcg[b] == 0)
+                zeroNum++;
         }
+        if(zeroNum>=2)
+            lowComplexity=true;
+        //repeative
+        if((k >> keylen) == (k & ((0x01<<keylen)-1)) )
+            lowComplexity = true;
         int diff = 0;
         for(int s=0; s<keylen - 1; s++) {
             int curBase = ( val >> ((keylen -s)*2) ) & 0x03;
@@ -292,7 +302,7 @@ int Evaluator::getTopKey(unsigned int* counts, int keylen) {
             continue;
 
         // starts with GGGG
-        if( k>>12 == 0xff)
+        if( (k>>12) == 0xff)
             continue;
         if(k == 0)
             continue;
