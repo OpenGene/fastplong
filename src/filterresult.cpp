@@ -60,12 +60,14 @@ FilterResult* FilterResult::merge(vector<FilterResult*>& list) {
     return result;
 }
 
-void FilterResult::addAdapterTrimmed(string adapter, bool incTrimmedCounter ) {
+void FilterResult::addReadTrimmed(int bases) {
+    mTrimmedAdapterBases  += bases;
+    mTrimmedAdapterRead++;
+}
+
+void FilterResult::addAdapterTrimmed(string adapter ) {
     if(adapter.empty())
         return;
-    if(incTrimmedCounter)
-        mTrimmedAdapterRead++;
-    mTrimmedAdapterBases += adapter.length();
     
     if(mAdapter.count(adapter) >0 )
         mAdapter[adapter]++;

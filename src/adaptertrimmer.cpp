@@ -9,32 +9,24 @@ AdapterTrimmer::~AdapterTrimmer(){
 }
 
 
-bool AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList, bool incTrimmedCounter) {
+int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList) {
     int matchReq = 4;
     if(adapterList.size() > 16)
         matchReq = 5;
     if(adapterList.size() > 256)
         matchReq = 6;
-    bool trimmed = false;
+    int trimmed = 0;
 
     string* originalSeq = r->mSeq;
     for(int i=0; i<adapterList.size(); i++) {
-        trimmed |= trimBySequenceStart(r, NULL, adapterList[i], matchReq);
-        trimmed |= trimBySequenceEnd(r, NULL, adapterList[i], matchReq);
-    }
-
-    if(trimmed) {
-        string adapter = originalSeq->substr(r->length(), originalSeq->length() - r->length());
-        if(fr)
-            fr->addAdapterTrimmed(adapter, incTrimmedCounter);
-        else
-            cerr << adapter << endl;
+        trimmed += trimBySequenceStart(r, NULL, adapterList[i], matchReq);
+        trimmed += trimBySequenceEnd(r, NULL, adapterList[i], matchReq);
     }
 
     return trimmed;
 }
 
-bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
     const int WINDOW = 200;
     const int PATTERN_LEN = 16;
 
@@ -58,14 +50,14 @@ bool AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adap
             if(edit_distance(rdata + p + plen - cmplen, cmplen, adata + alen - cmplen, cmplen) < round(edMax * cmplen) ){
                 fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
                 r->trimFront(p + plen);
-                return true;
+                return p+plen;
             }
         }
     }
-    return false;
+    return 0;
 }
 
-bool AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
     const int WINDOW = 200;
     const int PATTERN_LEN = 16;
 
@@ -90,11 +82,11 @@ bool AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapte
             if(edit_distance(rdata + rlen -plen - p, cmplen, adata, cmplen) < round(edMax * cmplen) ){
                 fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
                 r->resize(rlen - plen -p);
-                return true;
+                return p+plen;
             }
         }
     }
-    return false;
+    return 0;
 }
 
 bool AdapterTrimmer::test() {

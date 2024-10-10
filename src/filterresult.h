@@ -33,7 +33,8 @@ public:
     static FilterResult* merge(vector<FilterResult*>& list);
     void print();
     // for single end
-    void addAdapterTrimmed(string adapter, bool incTrimmedCounter = true);
+    void addAdapterTrimmed(string adapter);
+    void addReadTrimmed(int bases);
     void addPolyXTrimmed(int base, int length);
     long getTotalPolyXTrimmedReads();
     long getTotalPolyXTrimmedBases();
