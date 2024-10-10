@@ -96,22 +96,6 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "</table>\n";
     ofs << "</div>\n";
 
-    // quality statistics
-    ofs << "<div class='section_div'>\n";
-    ofs << "<div class='section_title' onclick=showOrHide('quality_stat')><a name='summary'>Quality statistics</a></div>\n";
-    ofs << "<table id='quality_stat' class='section_table'>\n";
-    ofs << "<tr><td>\n";
-    if(preStats1) {
-        preStats1 -> reportHtmlQuality(ofs, "Before filtering");
-    }
-    ofs << "</td><td>\n";
-    if(postStats1) {
-        postStats1 -> reportHtmlQuality(ofs, "After filtering");
-    }
-    ofs << "</td></tr>\n";
-    ofs << "</table>\n";
-    ofs << "</div>\n";
-
     // median quality histogram
     ofs << "<div class='section_div'>\n";
     ofs << "<div class='section_title' onclick=showOrHide('median_qual_stat')><a name='summary'>Median qual histogram</a></div>\n";
@@ -123,6 +107,22 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "</td><td>\n";
     if(postStats1) {
         postStats1 -> reporHtmlMedianQualHist(ofs, "After filtering");
+    }
+    ofs << "</td></tr>\n";
+    ofs << "</table>\n";
+    ofs << "</div>\n";
+
+    // quality statistics
+    ofs << "<div class='section_div'>\n";
+    ofs << "<div class='section_title' onclick=showOrHide('quality_stat')><a name='summary'>Quality statistics</a></div>\n";
+    ofs << "<table id='quality_stat' class='section_table'>\n";
+    ofs << "<tr><td>\n";
+    if(preStats1) {
+        preStats1 -> reportHtmlQuality(ofs, "Before filtering");
+    }
+    ofs << "</td><td>\n";
+    if(postStats1) {
+        postStats1 -> reportHtmlQuality(ofs, "After filtering");
     }
     ofs << "</td></tr>\n";
     ofs << "</table>\n";
