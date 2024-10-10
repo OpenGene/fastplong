@@ -221,7 +221,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
                 key = seq2int(r->mSeq, pos, keylen, key);
                 if(key >= 0) {
                     counts[key]++;
-                    positionAcc[key]+=pos;
+                    positionAcc[key]+=r->length() - pos;
                     total++;
                 }
             }
@@ -239,7 +239,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
             string adapter = extendKeyToAdapter(key, counts, positionAcc, keylen, mOptions->isRNA, true);
             if(adapter.length() > 16){
                 cerr << "Read end adapter: " << adapter << endl;
-                mOptions->adapter.sequenceStart = adapter;
+                mOptions->adapter.sequenceEnd = adapter;
             } else {
                 cerr << "Read end adapter not found with seed: " << adapter << endl;
             }
@@ -307,6 +307,8 @@ int Evaluator::getTopKey(unsigned int* counts, int keylen) {
 
 string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned long* positionAcc, int keylen, bool isRNA, bool leftFirst) {
     string adapter = int2seq(key, keylen, isRNA);
+    const int mask = (1 << (keylen*2 )) - 1;
+    const int MAX_LEN = 64;
     char bases[4] = {'A', 'T', 'C', 'G'};
     if(isRNA)
         bases[1] = 'U';
@@ -318,9 +320,7 @@ string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned lon
         extendingLeft = false;
     while(true) {
         int curkey = key;
-        while(adapter.length() < 64) {
-            unsigned int curCounts[4] = {0};
-            unsigned long curPositions[4] = {0};
+        while(adapter.length() < MAX_LEN) {
             int totalCount = 0;
             bool extended = false;
             for(int b=0; b<4; b++) {
@@ -328,9 +328,7 @@ string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned lon
                 if(extendingLeft)
                     newkey = (b<<((keylen-1)*2)) | (curkey >> 2);
                 else
-                    newkey = b | curkey << 2;
-                curCounts[b] = counts[newkey];
-                curPositions[b] = positionAcc[newkey];
+                    newkey = b | (mask & (curkey << 2));
                 totalCount += counts[newkey];
             }
 
@@ -339,27 +337,29 @@ string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned lon
                 if(extendingLeft)
                     newkey = (b<<((keylen-1)*2)) | (curkey >> 2);
                 else
-                    newkey = b | curkey << 2;
-                double offset = (double)positionAcc[newkey]/counts[newkey] - (double)positionAcc[curkey]/counts[curkey];
-                if((double)curCounts[b] / totalCount < 0.7 || (double)curCounts[b] / counts[curkey] < 0.7)
+                    newkey = b | (mask & (curkey << 2));
+                if(counts[newkey] == 0)
                     continue;
-                if(extendingLeft) {
-                    if( offset>-1.5 && offset<-0.5) {
-                        //successful to extend
-                        adapter.insert(adapter.begin(), bases[b]);
-                        curkey = newkey;
-                        extended = true;
-                        break;
-                    }
-                } else {
-                    if( offset>0.5 && offset<1.5) {
-                        //successful to extend
-                        adapter.insert(adapter.end(), bases[b]);
-                        curkey = newkey;
-                        extended = true;
-                        break;
-                    }
+                double offset = (double)positionAcc[newkey]/counts[newkey] - (double)positionAcc[curkey]/counts[curkey];
+                //cerr << (double)counts[newkey] / (double)totalCount << ", " << (double)counts[newkey] / (double)counts[key];
+                //cerr << ", offset: " << offset << endl;
+                if((double)counts[newkey] / (double)totalCount < 0.7)
+                    continue;
+                if( (double)counts[newkey] / (double)counts[key] < 0.5) {
+                    continue;
                 }
+                // offset should be near -1.0
+                if(offset > 2  || offset < -4)
+                    continue;
+                //successful to extend
+                curkey = newkey;
+                extended = true;
+                if(extendingLeft) {
+                    adapter.insert(adapter.begin(), bases[b]);
+                } else {
+                    adapter.insert(adapter.end(), bases[b]);
+                }
+                break;
             }
 
             if(!extended) {
@@ -367,6 +367,12 @@ string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned lon
                     leftFinished = true;
                 else
                     rightFinished = true;
+                break;
+            }
+
+            if(adapter.length() == MAX_LEN) {
+                leftFinished = true;
+                rightFinished = true;
                 break;
             }
         }
