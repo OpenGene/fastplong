@@ -8,7 +8,7 @@
 Options::Options(){
     in = "";
     out = "";
-    reportTitle = "fastp report";
+    reportTitle = "fastplong report";
     thread = 3;
     compression = 4;
     dontOverwrite = false;
