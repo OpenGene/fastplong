@@ -31,6 +31,7 @@ public:
     // a port of JSON report
     void reportJson(ofstream& ofs, string padding);
     // a port of HTML report
+    void reporHtmlMedianQualLengthDensity(ofstream& ofs, string filteringType);
     void reporHtmlMedianQualHist(ofstream& ofs, string filteringType);
     void reportHtmlBasicInfo(ofstream& ofs, string filteringType);
     void reportHtmlQuality(ofstream& ofs, string filteringType);
@@ -41,9 +42,9 @@ public:
     void calcLengthHistogram();
 
 public:
-    static string list2string(double* list, int size);
-    static string list2string(double* list, int size, long* coords);
-    static string list2string(long* list, int size);
+    static string list2string(double* list, long size, long* coords);
+    template<class T>
+    static string list2string(T* list, long size);
     static int base2val(char base);
 
 private:

@@ -547,17 +547,7 @@ void Stats::reportJson(ofstream& ofs, string padding) {
     ofs << padding << "}," << endl;
 }
 
-string Stats::list2string(double* list, int size) {
-    stringstream ss;
-    for(int i=0; i<size; i++) {
-        ss << list[i];
-        if(i < size-1)
-            ss << ",";
-    }
-    return ss.str();
-}
-
-string Stats::list2string(double* list, int size, long* coords) {
+string Stats::list2string(double* list, long size, long* coords) {
     stringstream ss;
     for(int i=0; i<size; i++) {
         // coords is 1,2,3,...
@@ -582,9 +572,10 @@ string Stats::list2string(double* list, int size, long* coords) {
     return ss.str();
 }
 
-string Stats::list2string(long* list, int size) {
+template<class T>
+string Stats::list2string(T* list, long size) {
     stringstream ss;
-    for(int i=0; i<size; i++) {
+    for(long i=0; i<size; i++) {
         ss << list[i];
         if(i < size-1)
             ss << ",";
@@ -617,7 +608,7 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
         percentBases[i] = (double)mMedianReadQualBases[i+33] * 100.0 / (double)mBases;
     }
 
-    ofs << "<div id='insert_size_figure'>\n";
+    ofs << "<div id='mean_qual_length_histogram_figure'>\n";
     ofs << "<div class='figure' id='plot_median_qual_hist_" + divName + "' style='height:400px;'></div>\n";
     ofs << "</div>\n";
 
@@ -659,6 +650,55 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
     delete[] percentReads;
     delete[] percentBases;
 }
+
+void Stats::reporHtmlMedianQualLengthDensity(ofstream& ofs, string filteringType) {
+    string subsection = filteringType + ": Density plot of read median quality and read length";
+    string divName = replace(subsection, " ", "_");
+
+    ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
+
+    short *x = new short[mReads];
+    int *y = new int[mReads];
+    long cur = 0;
+    map<char, vector<int>>::iterator iter;
+    for(iter = mQualLength.begin(); iter != mQualLength.end(); iter++) {
+        for(size_t l=0; l<iter->second.size(); l++) {
+            x[cur] = iter->first - 33;
+            y[cur] = iter->second[l];
+            cur++;
+        }
+    }
+
+    ofs << "<div id='mean_qual_length_density_figure'>\n";
+    ofs << "<div class='figure' id='plot_median_qual_length_density_" + divName + "' style='height:400px;'></div>\n";
+    ofs << "</div>\n";
+
+    ofs << "\n<script type=\"text/javascript\">" << endl;
+    string json_str = "var density=";
+
+    json_str += "{";
+    json_str += "x:[" + Stats::list2string(x, mReads) + "],";
+    json_str += "y:[" + Stats::list2string(y, mReads) + "],";
+    json_str += "name: '% reads',";
+    json_str += "type:'histogram2dcontour',";
+    json_str += "line:{color:'rgba(128,0,128,1.0)', width:1}\n";
+    json_str += "}";
+
+    json_str += ";\n";
+
+
+    json_str += "var data = [density];\n";
+
+    json_str += "var layout={legend: {x: 0, y: 1.0},title:' Density plot of read median quality and read length', xaxis:{title:'read median quality score'}, yaxis:{title:'Read length', type:'log'}};\n";
+    json_str += "Plotly.newPlot('plot_median_qual_length_density_" + divName + "', data, layout);\n";
+
+    ofs << json_str;
+    ofs << "</script>" << endl;
+
+    delete[] x;
+    delete[] y;
+}
+
 
 void Stats::reportHtmlBasicInfo(ofstream& ofs, string filteringType) {
     // KMER

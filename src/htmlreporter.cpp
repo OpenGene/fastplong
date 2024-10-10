@@ -112,6 +112,22 @@ void HtmlReporter::report(FilterResult* result, Stats* preStats1, Stats* postSta
     ofs << "</table>\n";
     ofs << "</div>\n";
 
+    // median quality length density
+    ofs << "<div class='section_div'>\n";
+    ofs << "<div class='section_title' onclick=showOrHide('median_qual_length_density')><a name='summary'>Median qual length density</a></div>\n";
+    ofs << "<table id='median_qual_length_density' class='section_table'>\n";
+    ofs << "<tr><td>\n";
+    if(preStats1) {
+        preStats1 -> reporHtmlMedianQualLengthDensity(ofs, "Before filtering");
+    }
+    ofs << "</td><td>\n";
+    if(postStats1) {
+        postStats1 -> reporHtmlMedianQualLengthDensity(ofs, "After filtering");
+    }
+    ofs << "</td></tr>\n";
+    ofs << "</table>\n";
+    ofs << "</div>\n";
+
     // quality statistics
     ofs << "<div class='section_div'>\n";
     ofs << "<div class='section_title' onclick=showOrHide('quality_stat')><a name='summary'>Quality statistics</a></div>\n";
