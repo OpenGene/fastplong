@@ -198,9 +198,12 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
 
         if(r1 != NULL && mOptions->adapter.enabled){
             bool trimmed = false;
-            if(mOptions->adapter.hasSeq)
-                trimmed = AdapterTrimmer::trimBySequence(r1, config->getFilterResult(), mOptions->adapter.sequence);
+            if(!mOptions->adapter.sequenceStart.empty())
+                trimmed = AdapterTrimmer::trimBySequenceStart(r1, config->getFilterResult(), mOptions->adapter.sequenceStart);
             bool incTrimmedCounter = !trimmed;
+            if(!mOptions->adapter.sequenceEnd.empty())
+                trimmed = AdapterTrimmer::trimBySequenceStart(r1, config->getFilterResult(), mOptions->adapter.sequenceEnd);
+            incTrimmedCounter |= trimmed;
             if(mOptions->adapter.hasFasta) {
                 AdapterTrimmer::trimByMultiSequences(r1, config->getFilterResult(), mOptions->adapter.seqsInFasta, incTrimmedCounter);
             }

@@ -171,9 +171,10 @@ void FilterResult::reportAdapterJson(ofstream& ofs, string padding) {
 
     ofs << padding << "\t" << "\"adapter_trimmed_reads\": " << mTrimmedAdapterRead << "," << endl;
     ofs << padding << "\t" << "\"adapter_trimmed_bases\": " << mTrimmedAdapterBases << "," << endl;
-    ofs << padding << "\t" << "\"read1_adapter_sequence\": \"" << mOptions->getAdapter() << "\"," << endl;
+    ofs << padding << "\t" << "\"read_start_adapter\": \"" << mOptions->getReadStartAdapter() << "\"," << endl;
+    ofs << padding << "\t" << "\"read_end_adapter\": \"" << mOptions->getReadEndAdapter() << "\"," << endl;
 
-    ofs << padding << "\t" << "\"read1_adapter_counts\": " << "{";
+    ofs << padding << "\t" << "\"read_adapter_counts\": " << "{";
         outputAdaptersJson(ofs, mAdapter);
     ofs << "}";
     ofs << endl;

@@ -102,7 +102,7 @@ void Evaluator::evaluateReadNum(long& readNum) {
     }
 }
 
-string Evaluator::evalAdapterAndReadNum(long& readNum) {
+void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     string filename = mOptions->in;
 
     FastqReader reader(filename);
@@ -156,7 +156,7 @@ string Evaluator::evalAdapterAndReadNum(long& readNum) {
             loadedReads[r] = NULL;
         }
         delete[] loadedReads;
-        return "";
+        return ;
     }
 
     // we have to shift last cycle for evaluation since it is so noisy, especially for Illumina data
@@ -254,7 +254,8 @@ string Evaluator::evalAdapterAndReadNum(long& readNum) {
                 loadedReads[r] = NULL;
             }
             delete[] loadedReads;
-            return adapter;
+            //return adapter;
+            return ;
         }
     }
 
@@ -264,7 +265,7 @@ string Evaluator::evalAdapterAndReadNum(long& readNum) {
         loadedReads[r] = NULL;
     }
     delete[] loadedReads;
-    return "";
+    return ;
 
 }
 

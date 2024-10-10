@@ -16,7 +16,7 @@ public:
     ~Evaluator();
     // evaluate how many reads are stored in the input file
     void evaluateReadNum(long& readNum);
-    string evalAdapterAndReadNum(long& readNum);
+    void evalAdapterAndReadNum(Options* opt, long& readNum);
     void evaluateSeqLenAndCheckRNA();
 
     static bool test();

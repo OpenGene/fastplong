@@ -42,8 +42,9 @@ int main(int argc, char* argv[]){
     cmd.add("verbose", 'V', "output verbose log information (i.e. when every 1M reads are processed).");
 
     // adapter
-    cmd.add("disable_adapter_trimming", 'A', "adapter trimming is enabled by default. If this option is specified, adapter trimming is disabled");
-    cmd.add<string>("adapter_sequence", 'a', "the adapter for read.", false, "auto");
+    cmd.add("disable_adapter_trimming", 0, "adapter trimming is enabled by default. If this option is specified, adapter trimming is disabled");
+    cmd.add<string>("read_start_adapter", 'a', "the adapter sequence at read start (5').", false, "auto");
+    cmd.add<string>("read_end_adapter", 'A', "the adapter sequence at read end (3').", false, "auto");
     cmd.add<string>("adapter_fasta", 0, "specify a FASTA file to trim both read by all the sequences in this FASTA file", false, "");
 
     // trimming
@@ -124,7 +125,8 @@ int main(int argc, char* argv[]){
 
     // adapter cutting
     opt.adapter.enabled = !cmd.exist("disable_adapter_trimming");
-    opt.adapter.sequence = cmd.get<string>("adapter_sequence");
+    opt.adapter.sequenceStart = cmd.get<string>("read_start_adapter");
+    opt.adapter.sequenceEnd = cmd.get<string>("read_end_adapter");
     opt.adapter.fastaFile = cmd.get<string>("adapter_fasta");
     if(!opt.adapter.fastaFile.empty()) {
         opt.loadFastaAdapters();
@@ -259,17 +261,18 @@ int main(int argc, char* argv[]){
         if(!supportEvaluation)
             cerr << "Adapter auto-detection is disabled for STDIN mode" << endl;
         else {
-            cerr << "Detecting adapter sequence for read..." << endl;
-            string adapt = eva.evalAdapterAndReadNum(readNum);
-            if(adapt.length() > 60 )
+            cerr << "Detecting adapter sequence..." << endl;
+            eva.evalAdapterAndReadNum(&opt, readNum);
+            /*if(adapt.length() > 60 )
                 adapt.resize(0, 60);
             if(adapt.length() > 0 ) {
-                opt.adapter.sequence = adapt;
-                opt.adapter.detectedAdapter = adapt;
+                opt.adapter.sequenceStart = adapt;
+                opt.adapter.sequenceEnd = adapt;
             } else {
                 cerr << "No adapter detected for read" << endl;
-                opt.adapter.sequence = "";
-            }
+                opt.adapter.sequenceStart = "";
+                opt.adapter.sequenceEnd = "";
+            }*/
             cerr << endl;
         }
     }

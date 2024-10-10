@@ -26,7 +26,7 @@ void Options::init() {
 
 bool Options::adapterCuttingEnabled() {
     if(adapter.enabled){
-        if(!adapter.sequence.empty())
+        if(!adapter.sequenceStart.empty() || !adapter.sequenceEnd.empty())
             return true;
     }
     return false;
@@ -175,20 +175,18 @@ bool Options::validate() {
             error_exit("the mean quality requirement for cutting by quality (--cut_right_mean_quality) should be 1 ~ 30, suggest 15 ~ 20.");
     }
 
-    if(adapter.sequence!="auto" && !adapter.sequence.empty()) {
+    if(adapter.sequenceStart!="auto" && !adapter.sequenceStart.empty()) {
         // validate adapter sequence for single end adapter trimming
-        if(adapter.sequence.length() <= 3)
+        if(adapter.sequenceStart.length() <= 3)
             error_exit("the sequence of <adapter_sequence> should be longer than 3");
 
         // validate bases
-        for(int i=0; i<adapter.sequence.length(); i++) {
-            char c = adapter.sequence[i];
+        for(int i=0; i<adapter.sequenceStart.length(); i++) {
+            char c = adapter.sequenceStart[i];
             if(c!='A' && c!='T' && c!='C' && c!='G') {
-                error_exit("the adapter <adapter_sequence> can only have bases in {A, T, C, G}, but the given sequence is: " + adapter.sequence);
+                error_exit("the adapter <adapter_sequence> can only have bases in {A, T, C, G}, but the given sequence is: " + adapter.sequenceStart);
             }
         }
-
-        adapter.hasSeq = true;
     }
 
 
@@ -199,7 +197,7 @@ bool Options::shallDetectAdapter() {
     if(!adapter.enabled)
         return false;
 
-    return adapter.sequence == "auto";
+    return adapter.sequenceStart == "auto" || adapter.sequenceEnd == "auto" ;
 }
 
 
@@ -233,9 +231,16 @@ vector<string> Options::makeListFromFileByLine(string filename) {
     return ret;
 }
 
-string Options::getAdapter(){
-    if(adapter.sequence == "" || adapter.sequence == "auto")
+string Options::getReadStartAdapter(){
+    if(adapter.sequenceStart == "" || adapter.sequenceStart == "auto")
         return "unspecified";
     else
-        return adapter.sequence;
+        return adapter.sequenceStart;
+}
+
+string Options::getReadEndAdapter(){
+    if(adapter.sequenceEnd == "" || adapter.sequenceEnd == "auto")
+        return "unspecified";
+    else
+        return adapter.sequenceEnd;
 }

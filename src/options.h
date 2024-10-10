@@ -110,15 +110,15 @@ class AdapterOptions {
 public:
     AdapterOptions() {
         enabled = true;
-        hasSeq = false;
+        detected = false;
     }
 public:
     bool enabled;
-    string sequence;
-    string detectedAdapter;
+    string sequenceStart;
+    string sequenceEnd;
     vector<string> seqsInFasta;
     string fastaFile;
-    bool hasSeq;
+    bool detected;
     bool hasFasta;
 };
 
@@ -183,7 +183,8 @@ public:
     bool validate();
     bool adapterCuttingEnabled();
     bool polyXTrimmingEnabled();
-    string getAdapter();
+    string getReadStartAdapter();
+    string getReadEndAdapter();
     vector<string> makeListFromFileByLine(string filename);
     bool shallDetectAdapter();
     void loadFastaAdapters();
