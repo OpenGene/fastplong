@@ -106,9 +106,9 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     string filename = mOptions->in;
 
     FastqReader reader(filename);
-    // stat up to 256K reads
-    const long READ_LIMIT = 256*1024;
-    const long BASE_LIMIT = 151 * READ_LIMIT;
+    // stat up to 16K reads or 128M bases
+    const long READ_LIMIT = 16*1024;
+    const long BASE_LIMIT = 8192 * READ_LIMIT;
     long records = 0;
     long bases = 0;
     size_t firstReadPos = 0;
@@ -149,8 +149,8 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
         readNum = (long) (bytesTotal*1.01 / bytesPerRead);
     }
 
-    // we need at least 10000 valid records to evaluate
-    if(records < 10000) {
+    // we need at least 100 valid records to evaluate
+    if(records < 100) {
         for(int r=0; r<records; r++) {
             delete loadedReads[r];
             loadedReads[r] = NULL;
@@ -163,30 +163,108 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     const int shiftTail = max(1, mOptions->trim.tail);
 
     // why we add trim_tail here? since the last cycle are usually with low quality and should be trimmed
+    const double FOLD_THRESHOLD = 100.0;
     const int keylen = 10;
     int size = 1 << (keylen*2 );
     unsigned int* counts = new unsigned int[size];
-    memset(counts, 0, sizeof(unsigned int)*size);
-    for(int i=0; i<records; i++) {
-        Read* r = loadedReads[i];
-        const char* data = r->mSeq->c_str();
-        int key = -1;
-        for(int pos = 20; pos <= r->length()-keylen-shiftTail; pos++) {
-            key = seq2int(r->mSeq, pos, keylen, key);
-            if(key >= 0) {
-                counts[key]++;
+    unsigned long* positionAcc = new unsigned long[size];
+
+    // read start adapter
+    if(opt->adapter.sequenceStart == "auto") {
+        long total = 0;
+        int totalKey = 0;
+        memset(counts, 0, sizeof(unsigned int)*size);
+        memset(positionAcc, 0, sizeof(unsigned long)*size);
+        for(int i=0; i<records; i++) {
+            Read* r = loadedReads[i];
+            const char* data = r->mSeq->c_str();
+            int key = -1;
+            for(int pos = 0; pos <= r->length()-keylen-shiftTail && pos<128; pos++) {
+                key = seq2int(r->mSeq, pos, keylen, key);
+                if(key >= 0) {
+                    counts[key]++;
+                    positionAcc[key]+=pos;
+                    total++;
+                }
+            }
+        }
+        for(int k=0; k<size; k++) {
+        if(counts[k] >0)
+            totalKey++;
+        }
+        // set AAAAAAAAAA = 0;
+        counts[0] = 0;
+
+        int key = getTopKey(counts, keylen);
+        long count = counts[key];
+        if(count>10 && count*totalKey > total * FOLD_THRESHOLD) {
+            string adapter = extendKeyToAdapter(key, counts, positionAcc, keylen, false);
+            if(adapter.length() > 16){
+                cerr << "Read start adapter: " << adapter << endl;
+                mOptions->adapter.sequenceStart = adapter;
             }
         }
     }
 
-    // set AAAAAAAAAA = 0;
-    counts[0] = 0;
+    // read start adapter
+    if(opt->adapter.sequenceEnd == "auto") {
+        long total = 0;
+        int totalKey = 0;
+        memset(counts, 0, sizeof(unsigned int)*size);
+        memset(positionAcc, 0, sizeof(unsigned long)*size);
+        for(int i=0; i<records; i++) {
+            Read* r = loadedReads[i];
+            const char* data = r->mSeq->c_str();
+            int key = -1;
+            int startpos = max(0, r->length()-keylen-shiftTail - 128);
+            for(int pos = startpos; pos <= r->length()-keylen-shiftTail; pos++) {
+                key = seq2int(r->mSeq, pos, keylen, key);
+                if(key >= 0) {
+                    counts[key]++;
+                    positionAcc[key]+=pos;
+                    total++;
+                }
+            }
+        }
+        for(int k=0; k<size; k++) {
+        if(counts[k] >0)
+            totalKey++;
+        }
+        // set AAAAAAAAAA = 0;
+        counts[0] = 0;
 
+        int key = getTopKey(counts, keylen);
+        long count = counts[key];
+        if(count>10 && count*totalKey > total * FOLD_THRESHOLD) {
+            string adapter = extendKeyToAdapter(key, counts, positionAcc, keylen, mOptions->isRNA, true);
+            if(adapter.length() > 16){
+                cerr << "Read end adapter: " << adapter << endl;
+                mOptions->adapter.sequenceStart = adapter;
+            } else {
+                cerr << "Read end adapter not found with seed: " << adapter << endl;
+            }
+        }
+    }
+
+    delete[] counts;
+    delete[] positionAcc;
+    for(int r=0; r<records; r++) {
+        delete loadedReads[r];
+        loadedReads[r] = NULL;
+    }
+    delete[] loadedReads;
+
+}
+
+int Evaluator::getTopKey(unsigned int* counts, int keylen) {
     // get the top N
-    const int topnum = 10;
-    int topkeys[topnum] = {0};
-    long total = 0;
+    int size = 1 << (keylen*2 );
+    int topkey = -1;
+    unsigned int topCount = 0;
     for(int k=0; k<size; k++) {
+        unsigned int val = counts[k];
+
+        // skip low complexity seq
         int atcg[4] = {0};
         for(int i=0; i<keylen; i++) {
             int baseOfBit = (k >> (i*2)) & 0x03;
@@ -197,6 +275,16 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
             if(atcg[b] >= keylen-4)
                 lowComplexity=true;
         }
+        int diff = 0;
+        for(int s=0; s<keylen - 1; s++) {
+            int curBase = ( val >> ((keylen -s)*2) ) & 0x03;
+            int lastBase = ( val >> ((keylen -s - 1)*2) ) & 0x03;
+            if(curBase != lastBase)
+                diff++;
+        }
+        if(diff <3){
+            continue;
+        }
         if(lowComplexity)
             continue;
         // too many GC
@@ -206,66 +294,94 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
         // starts with GGGG
         if( k>>12 == 0xff)
             continue;
+        if(k == 0)
+            continue;
+        
+        if(val > topCount) {
+            topCount = val;
+            topkey = k;
+        }
+    }
+    return topkey;
+}
 
-        unsigned int val = counts[k];
-        total += val;
-        for(int t=topnum-1; t>=0; t--) {
-            // reach the middle
-            if(val < counts[topkeys[t]]){
-                if(t<topnum-1) {
-                    for(int m=topnum-1; m>t+1; m--) {
-                        topkeys[m] = topkeys[m-1];
+string Evaluator::extendKeyToAdapter(int key, unsigned int* counts, unsigned long* positionAcc, int keylen, bool isRNA, bool leftFirst) {
+    string adapter = int2seq(key, keylen, isRNA);
+    char bases[4] = {'A', 'T', 'C', 'G'};
+    if(isRNA)
+        bases[1] = 'U';
+
+    bool leftFinished = false;
+    bool rightFinished = false;
+    bool extendingLeft = true;
+    if(!leftFirst)
+        extendingLeft = false;
+    while(true) {
+        int curkey = key;
+        while(adapter.length() < 64) {
+            unsigned int curCounts[4] = {0};
+            unsigned long curPositions[4] = {0};
+            int totalCount = 0;
+            bool extended = false;
+            for(int b=0; b<4; b++) {
+                int newkey;
+                if(extendingLeft)
+                    newkey = (b<<((keylen-1)*2)) | (curkey >> 2);
+                else
+                    newkey = b | curkey << 2;
+                curCounts[b] = counts[newkey];
+                curPositions[b] = positionAcc[newkey];
+                totalCount += counts[newkey];
+            }
+
+            for(int b=0; b<4; b++) {
+                int newkey;
+                if(extendingLeft)
+                    newkey = (b<<((keylen-1)*2)) | (curkey >> 2);
+                else
+                    newkey = b | curkey << 2;
+                double offset = (double)positionAcc[newkey]/counts[newkey] - (double)positionAcc[curkey]/counts[curkey];
+                if((double)curCounts[b] / totalCount < 0.7 || (double)curCounts[b] / counts[curkey] < 0.7)
+                    continue;
+                if(extendingLeft) {
+                    if( offset>-1.5 && offset<-0.5) {
+                        //successful to extend
+                        adapter.insert(adapter.begin(), bases[b]);
+                        curkey = newkey;
+                        extended = true;
+                        break;
                     }
-                    topkeys[t+1] = k;
+                } else {
+                    if( offset>0.5 && offset<1.5) {
+                        //successful to extend
+                        adapter.insert(adapter.end(), bases[b]);
+                        curkey = newkey;
+                        extended = true;
+                        break;
+                    }
                 }
+            }
+
+            if(!extended) {
+                if(extendingLeft)
+                    leftFinished = true;
+                else
+                    rightFinished = true;
                 break;
-            } else if(t == 0) { // reach the top
-                for(int m=topnum-1; m>t; m--) {
-                    topkeys[m] = topkeys[m-1];
-                }
-                topkeys[t] = k;
             }
         }
-    }
 
-    const int FOLD_THRESHOLD = 20;
-    for(int t=0; t<topnum; t++) {
-        int key = topkeys[t];
-        string seq = int2seq(key, keylen);
-        if(key == 0)
-            continue;
-        long count = counts[key];
-        if(count<10 || count*size < total * FOLD_THRESHOLD)
+        //finish one side, go the other side
+        if(extendingLeft)
+            extendingLeft = false;
+        else
+            extendingLeft = true;
+
+        if(leftFinished && rightFinished)
             break;
-        // skip low complexity seq
-        int diff = 0;
-        for(int s=0; s<seq.length() - 1; s++) {
-            if(seq[s] != seq[s+1])
-                diff++;
-        }
-        if(diff <3){
-            continue;
-        }
-        string adapter = getAdapterWithSeed(key, loadedReads, records, keylen);
-        if(!adapter.empty()){
-            delete[] counts;
-            for(int r=0; r<records; r++) {
-                delete loadedReads[r];
-                loadedReads[r] = NULL;
-            }
-            delete[] loadedReads;
-            //return adapter;
-            return ;
-        }
     }
 
-    delete[] counts;
-    for(int r=0; r<records; r++) {
-        delete loadedReads[r];
-        loadedReads[r] = NULL;
-    }
-    delete[] loadedReads;
-    return ;
+    return adapter;
 
 }
 
@@ -344,8 +460,10 @@ string Evaluator::matchKnownAdapter(string seq) {
     return "";
 }
 
-string Evaluator::int2seq(unsigned int val, int seqlen) {
+string Evaluator::int2seq(unsigned int val, int seqlen, bool isRNA) {
     char bases[4] = {'A', 'T', 'C', 'G'};
+    if(isRNA)
+        bases[1] = 'U';
     string ret(seqlen, 'N');
     int done = 0;
     while(done < seqlen) {
@@ -371,6 +489,7 @@ int Evaluator::seq2int(string& seq, int pos, int keylen, int lastVal) {
                 key += 0;
                 break;
             case 'T':
+            case 'U':
                 key += 1;
                 break;
             case 'C':
@@ -394,6 +513,7 @@ int Evaluator::seq2int(string& seq, int pos, int keylen, int lastVal) {
                     key += 0;
                     break;
                 case 'T':
+                case 'U':
                     key += 1;
                     break;
                 case 'C':
