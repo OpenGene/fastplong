@@ -593,10 +593,26 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
 
     ofs << "<div class='subsection_title'>" + subsection + "</div>\n";
 
-    int total = 40; // to q40
+    int minVal = 0;
+    int maxVal = 0;
+    for(int i=0; i<127-33; i++) {
+        if(mMedianReadQualBases[i+33] == 0)
+            minVal++;
+        else
+            break;
+    }
+    for(int i=127-33; i>=0; i--) {
+        if(mMedianReadQualBases[i+33] > 0) {
+            maxVal = i;
+            break;
+        }
+    }
+
+    int offset = max(0, minVal-1); 
+    int total = min(127-33, maxVal - minVal + 2);
     long *x = new long[total];
     for(int i=0; i<total; i++) {
-        x[i] = i;
+        x[i] = i + offset;
     }
 
     double* percentReads = new double[total];
@@ -604,8 +620,8 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
     double* percentBases = new double[total];
     memset(percentBases, 0, sizeof(double)*total);
     for(int i=0; i<total; i++) {
-        percentReads[i] = (double)mMedianReadQualHistogram[i+33] * 100.0 / (double)mReads;
-        percentBases[i] = (double)mMedianReadQualBases[i+33] * 100.0 / (double)mBases;
+        percentReads[i] = (double)mMedianReadQualHistogram[i+offset+33] * 100.0 / (double)mReads;
+        percentBases[i] = (double)mMedianReadQualBases[i+offset+33] * 100.0 / (double)mBases;
     }
 
     ofs << "<div id='mean_qual_length_histogram_figure'>\n";
