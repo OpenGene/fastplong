@@ -1,5 +1,6 @@
 #include "adaptertrimmer.h"
 #include "editdistance.h"
+#include <math.h>
 
 AdapterTrimmer::AdapterTrimmer(){
 }
