@@ -1,8 +1,7 @@
 # fastplong
 Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.).   
-If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use fastp: https://github.com/OpenGene/fastp
+If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use [fastp](https://github.com/OpenGene/fastp)  
 
-- [fastplong](#fastplong)
 - [simple usage](#simple-usage)
 - [examples of report](#examples-of-report)
 - [get fastplong](#get-fastplong)
