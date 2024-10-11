@@ -4,6 +4,7 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
 
 - [fastplong](#fastplong)
 - [simple usage](#simple-usage)
+- [examples of report](#examples-of-report)
 - [get fastplong](#get-fastplong)
   - [download the latest prebuilt binary for Linux users](#download-the-latest-prebuilt-binary-for-linux-users)
   - [or compile from source](#or-compile-from-source)
@@ -36,6 +37,11 @@ fastplong -i in.fq -o out.fq
 ```
 Both input and output can be gzip compressed. By default, the HTML report is saved to `fastplong.html` (can be specified with `-h` option), and the JSON report is saved to `fastplong.json` (can be specified with `-j` option). 
 
+# examples of report
+`fastplong` creates reports in both HTML and JSON format.
+* HTML report: http://opengene.org/fastplong/fastplong.html
+* JSON report: http://opengene.org/fastplong/fastplong.json
+
 # get fastplong
 ## download the latest prebuilt binary for Linux users
 This binary was compiled on CentOS, and tested on CentOS/Ubuntu
@@ -46,7 +52,7 @@ chmod a+x ./fastplong
 
 # or download specified version, i.e. fastplong v0.1.0
 wget http://opengene.org/fastplong/fastplong.0.1.0
-mv fastp.0.1.0 fastplong
+mv fastplong.0.1.0 fastplong
 chmod a+x ./fastplong
 ```
 ## or compile from source
