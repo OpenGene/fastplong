@@ -245,18 +245,7 @@ int main(int argc, char* argv[]){
         if(!supportEvaluation)
             cerr << "Adapter auto-detection is disabled for STDIN mode" << endl;
         else {
-            cerr << "Detecting adapter sequence..." << endl;
             eva.evalAdapterAndReadNum(&opt, readNum);
-            /*if(adapt.length() > 60 )
-                adapt.resize(0, 60);
-            if(adapt.length() > 0 ) {
-                opt.adapter.sequenceStart = adapt;
-                opt.adapter.sequenceEnd = adapt;
-            } else {
-                cerr << "No adapter detected for read" << endl;
-                opt.adapter.sequenceStart = "";
-                opt.adapter.sequenceEnd = "";
-            }*/
             cerr << endl;
         }
     }

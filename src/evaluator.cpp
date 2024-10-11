@@ -171,6 +171,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
 
     // read start adapter
     if(opt->adapter.sequenceStart == "auto") {
+        cerr << "Trying to detect adapter sequence at read start"<<endl;
         long total = 0;
         int totalKey = 0;
         memset(counts, 0, sizeof(unsigned int)*size);
@@ -200,16 +201,19 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
         if(count>10 && count*totalKey > total * FOLD_THRESHOLD) {
             string adapter = extendKeyToAdapter(key, counts, positionAcc, keylen, false);
             if(adapter.length() > 16){
-                cerr << "Read start adapter: " << adapter << endl;
+                cerr << "Detected: " << adapter << endl;
                 mOptions->adapter.sequenceStart = adapter;
             } else {
-                cerr << "Read start adapter (too short): " << adapter << endl;
+                cerr << "Found possible adapter sequence, but it's too short: " << adapter << ", specify -s " << adapter << " to force trimming using this adapter"  << endl;
             }
+        } else {
+            cerr << "Not detected" << endl;
         }
     }
 
     // read start adapter
     if(opt->adapter.sequenceEnd == "auto") {
+        cerr << "Trying to detect adapter sequence at read end"<<endl;
         long total = 0;
         int totalKey = 0;
         memset(counts, 0, sizeof(unsigned int)*size);
@@ -240,11 +244,13 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
         if(count>10 && count*totalKey > total * FOLD_THRESHOLD) {
             string adapter = extendKeyToAdapter(key, counts, positionAcc, keylen, mOptions->isRNA, true);
             if(adapter.length() > 16){
-                cerr << "Read end adapter: " << adapter << endl;
+                cerr << "Detected: " << adapter << endl;
                 mOptions->adapter.sequenceEnd = adapter;
             } else {
-                cerr << "Read end adapter (too short): " << adapter << endl;
+                cerr << "Found possible adapter sequence, but it's too short: " << adapter << ", specify -e " << adapter << " to force trimming using this adapter"  << endl;
             }
+        } else {
+            cerr << "Not detected" << endl;
         }
     }
 

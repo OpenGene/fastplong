@@ -195,7 +195,6 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
         Read* r1 = mFilter->trimAndCut(or1, mOptions->trim.front, mOptions->trim.tail, frontTrimmed);
 
 
-
         if(r1 != NULL && mOptions->adapter.enabled){
             int trimmed = 0;
             if(!mOptions->adapter.sequenceStart.empty())

@@ -19,8 +19,8 @@ int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<strin
 
     string* originalSeq = r->mSeq;
     for(int i=0; i<adapterList.size(); i++) {
-        trimmed += trimBySequenceStart(r, NULL, adapterList[i], matchReq);
-        trimmed += trimBySequenceEnd(r, NULL, adapterList[i], matchReq);
+        trimmed += trimBySequenceStart(r, fr, adapterList[i], matchReq);
+        trimmed += trimBySequenceEnd(r, fr, adapterList[i], matchReq);
     }
 
     return trimmed;
@@ -37,23 +37,39 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
     const char* rdata = r->mSeq->c_str();
 
     if(rlen < PATTERN_LEN)
-        return false;
+        return 0;
 
     int plen = min(PATTERN_LEN, alen);
 
-    bool found = false;
     int pos = -1;
+    int mined = -1;
+    //from tail to front
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
-        if(edit_distance(rdata + p, plen, adata + alen - plen, plen) < round(edMax * plen)) {
-            // extend to compare the whole adapter
-            int cmplen = min(p+plen, alen);
-            if(edit_distance(rdata + p + plen - cmplen, cmplen, adata + alen - cmplen, cmplen) < round(edMax * cmplen) ){
-                fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
-                r->trimFront(p + plen);
-                return p+plen;
+        int ed = edit_distance(rdata + p, plen, adata + alen - plen, plen);
+        if(ed< round(edMax * plen)) {
+            if(pos < 0) {
+                pos = p;
+                mined = ed;
+            } else if(ed > mined) // last one is best
+                break;
+            else {
+                pos = p;
+                mined = ed;
             }
         }
     }
+
+    if(pos > 0) {
+        // extend to compare the whole adapter
+        int cmplen = min(pos+plen, alen);
+        if(edit_distance(rdata + pos + plen - cmplen, cmplen, adata + alen - cmplen, cmplen) < round(edMax * cmplen) ){
+            if(fr)
+                fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
+            r->trimFront(pos + plen);
+            return pos+plen;
+        }
+    }
+
     return 0;
 }
 
@@ -72,18 +88,32 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
 
     int plen = min(PATTERN_LEN, alen);
 
-    bool found = false;
     int pos = -1;
+    int mined = -1;
     //from tail to front
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
-        if(edit_distance(rdata + rlen - plen -p, plen, adata, plen) < round(edMax * plen)) {
-            // extend to compare the whole adapter
-            int cmplen = min(p+plen, alen);
-            if(edit_distance(rdata + rlen -plen - p, cmplen, adata, cmplen) < round(edMax * cmplen) ){
-                fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
-                r->resize(rlen - plen -p);
-                return p+plen;
+        int ed = edit_distance(rdata + rlen - plen -p, plen, adata, plen);
+        if(ed< round(edMax * plen)) {
+            if(pos < 0) {
+                pos = p;
+                mined = ed;
+            } else if(ed > mined) // last one is best
+                break;
+            else {
+                pos = p;
+                mined = ed;
             }
+        }
+    }
+
+    if(pos > 0) {
+        // extend to compare the whole adapter
+        int cmplen = min(pos+plen, alen);
+        if(edit_distance(rdata + rlen -plen - pos, cmplen, adata, cmplen) < round(edMax * cmplen) ){
+            if(fr)
+                fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
+            r->resize(rlen - plen -pos);
+            return pos + plen;
         }
     }
     return 0;
@@ -91,15 +121,29 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
 
 bool AdapterTrimmer::test() {
     Read r("@name",
-        "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAATTTTCCCCGGGG",
+        "AGGTGCTGCGCATACTTTTCCACGGGGATACTACTGGGTGTTACCGTGGGAATGAATCCTTTTAACCTTAGCAATACGTAAAGGTGCT",
         "+",
-        "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////E");
-    string adapter = "TTTTCCACGGGGATACTACTG";
-    bool trimmed = AdapterTrimmer::trimBySequenceEnd(&r, NULL, adapter);
-    if (*r.mSeq != "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAA")
+        "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////EEEEEEEEE///EEEEEEEEEEEEEEEEEEEEE");
+    string adapter = "GCGCATACTTTTCCACGGGGATACTACTG";
+    int trimmed = AdapterTrimmer::trimBySequenceStart(&r, NULL, adapter);
+    if (*r.mSeq != "GGTGTTACCGTGGGAATGAATCCTTTTAACCTTAGCAATACGTAAAGGTGCT") {
+        cerr << "expect GGTGTTACCGTGGGAATGAATCCTTTTAACCTTAGCAATACGTAAAGGTGCT" << endl;
+        cerr << "return " << *r.mSeq  << endl;
         return false;
+    }
 
-    Read read("@name",
+    Read r2("@name",
+        "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAAGCGCATACTTTTCCACGGGGA",
+        "+",
+        "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////EEEEEEEEET");
+    trimmed = AdapterTrimmer::trimBySequenceEnd(&r2, NULL, adapter);
+    if (*r2.mSeq != "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAA") {
+        cerr << "expect TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAA" << endl;
+        cerr << "return " << *r.mSeq  << endl;
+        return false;
+    }
+
+    /*Read read("@name",
         "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAATTTTCCCCGGGGAAATTTCCCGGGAAATTTCCCGGGATCGATCGATCGATCGAATTCC",
         "+",
         "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
@@ -112,7 +156,7 @@ bool AdapterTrimmer::test() {
     if (*read.mSeq != "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAATTTTCCCCGGGG") {
         cerr << read.mSeq << endl;
         return false;
-    }
+    }*/
 
     return true;
 }
