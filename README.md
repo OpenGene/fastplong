@@ -61,24 +61,9 @@ chmod a+x ./fastplong
 ### Step 1: install isa-l
 It's recommended that to install it using your package manager, for example `apt install isa-l` on ubuntu, or `brew install isa-l` on Mac. Otherwise you can compile it from source. Please be noted that `isa-l` is not compatible with gcc 4.8 or older versions. See https://github.com/intel/isa-l
 `autoconf`, `automake`, `libtools`, `nasm (>=2.11.01)` and `yasm (>=1.2.0)` are required to build isa-l.
-```shell
-git clone https://github.com/intel/isa-l.git
-cd isa-l
-./autogen.sh
-./configure --prefix=/usr --libdir=/usr/lib64
-make -j
-sudo make install
-```
 
 ### step 2: install libdeflate
 It's recommended that to install it using your package manager, for example `apt install libdeflate` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
-```shell
-git clone https://github.com/ebiggers/libdeflate.git
-cd libdeflate
-cmake -B build
-cmake --build build
-cmake --install build
-```
 
 ### Step 3: download and build fastplong
 ```shell
