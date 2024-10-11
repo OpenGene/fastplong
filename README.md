@@ -79,7 +79,7 @@ Specify input by `-i` or `--in`, and specify output by `-o` or `--out`.
 * if you don't specify the output file names, no output files will be written, but the QC will still be done for both data before and after filtering.
 * the output will be gzip-compressed if its file name ends with `.gz`
 ## output to STDOUT
-`fastplong` supports streaming the passing-filter reads to STDOUT, so that it can be passed to other compressors like `bzip2`, or be passed to aligners like `bwa` and `bowtie2`.
+`fastplong` supports streaming the passing-filter reads to STDOUT, so that it can be passed to other compressors like `bzip2`, or be passed to aligners like `minimap2` or `bowtie2`.
 * specify `--stdout` to enable this mode to stream output to STDOUT
 ## input from STDIN
 * specify `--stdin` if you want to read the STDIN for processing.
@@ -130,7 +130,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 The adapter sequence in this file should be at least 6bp long, otherwise it will be skipped. And you can give whatever you want to trim, rather than regular sequencing adapters (i.e. polyA).
 
 # per read cutting by quality score
-`fastplong` supports per read sliding window cutting by evaluating the mean quality scores in the sliding window. From `v0.19.6`, `fastplong` supports 3 different operations, and you enable one or all of them:
+`fastplong` supports per read sliding window cutting by evaluating the mean quality scores in the sliding window. `fastplong` supports 2 different operations, and you enable one or both:
 * `-5, --cut_front`             move a sliding window from front (5') to tail, drop the bases in the window if its mean quality is below cut_mean_quality, stop otherwise. Default is disabled. The leading N bases are also trimmed. Use `cut_front_window_size` to set the widnow size, and `cut_front_mean_quality` to set the mean quality threshold. If the window size is 1, this is similar as the Trimmomatic `LEADING` method.
 * `-3, --cut_tail`              move a sliding window from tail (3') to front, drop the bases in the window if its mean quality is below cut_mean_quality, stop otherwise. Default is disabled. The trailing N bases are also trimmed. Use `cut_tail_window_size` to set the widnow size, and `cut_tail_mean_quality` to set the mean quality threshold. If the window size is 1, this is similar as the Trimmomatic `TRAILING` method.
 
