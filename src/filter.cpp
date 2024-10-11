@@ -81,7 +81,7 @@ bool Filter::passLowComplexityFilter(Read* r) {
 Read* Filter::trimAndCut(Read* r, int front, int tail, int& frontTrimmed) {
     frontTrimmed = 0;
     // return the same read for speed if no change needed
-    if(front == 0 && tail == 0 && !mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail && !mOptions->qualityCut.enabledRight)
+    if(front == 0 && tail == 0 && !mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail)
         return r;
 
 
@@ -89,10 +89,10 @@ Read* Filter::trimAndCut(Read* r, int front, int tail, int& frontTrimmed) {
     if (rlen < 0)
         return NULL;
 
-    if(front == 0 && !mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail && !mOptions->qualityCut.enabledRight){
+    if(front == 0 && !mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail){
         r->resize(rlen);
         return r;
-    } else if(!mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail && !mOptions->qualityCut.enabledRight){
+    } else if(!mOptions->qualityCut.enabledFront && !mOptions->qualityCut.enabledTail){
         r->mSeq->erase(0,front);
         r->mSeq->resize(rlen);
         r->mQuality->erase(0,front);
@@ -138,45 +138,8 @@ Read* Filter::trimAndCut(Read* r, int front, int tail, int& frontTrimmed) {
         front = s;
         rlen = l - front - tail;
     }
-
-    // quality cutting in right mode
-    if(mOptions->qualityCut.enabledRight) {
-        int w = mOptions->qualityCut.windowSizeRight;
-        int s = front;
-        if(l - front - tail - w <= 0)
-            return NULL;
-
-        int totalQual = 0;
-
-        // preparing rolling
-        for(int i=0; i<w-1; i++)
-            totalQual += qualstr[s+i];
-
-        bool foundLowQualWindow = false;
-
-        for(s=front; s+w<l-tail; s++) {
-            totalQual += qualstr[s+w-1];
-            // rolling
-            if(s > front) {
-                totalQual -= qualstr[s-1];
-            }
-            // add 33 for phred33 transforming
-            if((double)totalQual / (double)w < 33 + mOptions->qualityCut.qualityRight) {
-                foundLowQualWindow = true;
-                break;
-            }
-        }
-
-        if(foundLowQualWindow ) {
-            // keep the good bases in the window
-            while(s<l-1 && qualstr[s]>=33 + mOptions->qualityCut.qualityRight)
-                s++;
-            rlen = s - front;
-        }
-    }
-
     // quality cutting backward
-    if(!mOptions->qualityCut.enabledRight && mOptions->qualityCut.enabledTail) {
+    if(mOptions->qualityCut.enabledTail) {
         int w = mOptions->qualityCut.windowSizeTail;
         if(l - front - tail - w <= 0)
             return NULL;

@@ -46,23 +46,18 @@ public:
     QualityCutOptions() {
         enabledFront = false;
         enabledTail = false;
-        enabledRight = false;
         windowSizeShared = 4;
         qualityShared = 20;
         windowSizeFront = windowSizeShared;
         qualityFront = qualityShared;
         windowSizeTail = windowSizeShared;
         qualityTail = qualityShared;
-        windowSizeRight = windowSizeShared;
-        qualityRight = qualityShared;
     }
 public:
     // enable 5' cutting by quality
     bool enabledFront;
     // enable 3' cutting by quality
     bool enabledTail;
-    // enable agressive cutting mode
-    bool enabledRight;
     // the sliding window size
     int windowSizeShared;
     // the mean quality requirement
@@ -75,10 +70,6 @@ public:
     int windowSizeTail;
     // the mean quality requirement for cutting by quality in 3'
     int qualityTail;
-    // the sliding window size for cutting by quality in aggressive mode
-    int windowSizeRight;
-    // the mean quality requirement for cutting by quality in aggressive mode
-    int qualityRight;
 };
 
 class SplitOptions {
@@ -127,7 +118,6 @@ public:
     TrimmingOptions() {
         front = 0;
         tail = 0;
-        maxLen = 0;
     }
 public:
     // trimming first cycles for read

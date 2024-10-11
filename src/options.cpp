@@ -127,7 +127,7 @@ bool Options::validate() {
         error_exit("qualitified phred (--qualified_quality_phred) should be 0 ~ 93, suggest 3 ~ 20");
 
     if(qualfilter.avgQualReq < 0 || qualfilter.avgQualReq  > 93)
-        error_exit("average quality score requirement (--average_qual) should be 0 ~ 93, suggest 5 ~ 30");
+        error_exit("average quality score requirement (--mean_qual) should be 0 ~ 93, suggest 5 ~ 30");
 
     if(qualfilter.unqualifiedPercentLimit < 0 || qualfilter.unqualifiedPercentLimit > 100)
         error_exit("unqualified percent limit (--unqualified_percent_limit) should be 0 ~ 100, suggest 20 ~ 60");
@@ -156,7 +156,7 @@ bool Options::validate() {
         }
     }
 
-    if(qualityCut.enabledFront || qualityCut.enabledTail || qualityCut.enabledRight) {
+    if(qualityCut.enabledFront || qualityCut.enabledTail) {
         if(qualityCut.windowSizeShared < 1 || qualityCut.windowSizeShared > 1000)
             error_exit("the sliding window size for cutting by quality (--cut_window_size) should be between 1~1000.");
         if(qualityCut.qualityShared < 1 || qualityCut.qualityShared > 30)
@@ -169,10 +169,6 @@ bool Options::validate() {
             error_exit("the sliding window size for cutting by quality (--cut_tail_window_size) should be between 1~1000.");
         if(qualityCut.qualityTail < 1 || qualityCut.qualityTail > 30)
             error_exit("the mean quality requirement for cutting by quality (--cut_tail_mean_quality) should be 1 ~ 30, suggest 13 ~ 20.");
-        if(qualityCut.windowSizeRight < 1 || qualityCut.windowSizeRight > 1000)
-            error_exit("the sliding window size for cutting by quality (--cut_right_window_size) should be between 1~1000.");
-        if(qualityCut.qualityRight < 1 || qualityCut.qualityRight > 30)
-            error_exit("the mean quality requirement for cutting by quality (--cut_right_mean_quality) should be 1 ~ 30, suggest 15 ~ 20.");
     }
 
     if(adapter.sequenceStart!="auto" && !adapter.sequenceStart.empty()) {

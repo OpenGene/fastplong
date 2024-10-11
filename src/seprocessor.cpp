@@ -215,11 +215,6 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
                 PolyX::trimPolyX(r1, config->getFilterResult(), mOptions->polyXTrim.minLen);
         }
 
-        if(r1 != NULL) {
-            if( mOptions->trim.maxLen > 0 && mOptions->trim.maxLen < r1->length())
-                r1->resize(mOptions->trim.maxLen);
-        }
-
         int result = mFilter->passFilter(r1);
 
         config->addFilterResult(result, 1);
