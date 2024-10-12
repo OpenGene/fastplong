@@ -8,6 +8,7 @@
 #include "options.h"
 #include "processor.h"
 #include "evaluator.h"
+#include "sequence.h"
 
 // TODO: code refactoring to remove these global variables
 string command;
@@ -124,6 +125,12 @@ int main(int argc, char* argv[]){
     opt.adapter.sequenceStart = cmd.get<string>("start_adapter");
     opt.adapter.sequenceEnd = cmd.get<string>("end_adapter");
     opt.adapter.fastaFile = cmd.get<string>("adapter_fasta");
+
+    // if the start adapter is specified and the end is not, use the reverse complement of start adapter
+    if(opt.adapter.sequenceStart != "auto" && opt.adapter.sequenceEnd == "auto") {
+        opt.adapter.sequenceEnd = Sequence::reverseComplement((&opt.adapter.sequenceStart));
+    }
+
     if(!opt.adapter.fastaFile.empty()) {
         opt.loadFastaAdapters();
     }
