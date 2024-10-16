@@ -194,6 +194,12 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
         // trim in head and tail, and apply quality cut in sliding window
         Read* r1 = mFilter->trimAndCut(or1, mOptions->trim.front, mOptions->trim.tail, frontTrimmed);
 
+        if(r1 != NULL) {
+            if(mOptions->polyXTrim.enabled)
+                PolyX::trimPolyX(r1, config->getFilterResult(), mOptions->polyXTrim.minLen);
+        }
+
+        vector<Read*> outReads;
 
         if(r1 != NULL && mOptions->adapter.enabled){
             int trimmed = 0;
@@ -207,31 +213,48 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             if(trimmed > 0) {
                 config->getFilterResult()->addReadTrimmed(trimmed);
             }
+
+            //search for middle adapter
+            int start = -1;
+            int len = 0;
+            bool foundMiddleAdapter = AdapterTrimmer::findMiddleAdapters(r1, mOptions->adapter.sequenceStart, mOptions->adapter.sequenceEnd, start, len);
+            if(foundMiddleAdapter) {
+                //break the read
+                outReads = r1->breakByGap(start, len);
+            } else {
+                outReads.push_back(r1);
+            }
         }
 
-        if(r1 != NULL) {
-            if(mOptions->polyXTrim.enabled)
-                PolyX::trimPolyX(r1, config->getFilterResult(), mOptions->polyXTrim.minLen);
+        bool passed = false;
+        for(int i=0; i<outReads.size(); i++) {
+
+            Read* outr = outReads[i];
+            int result = mFilter->passFilter(outr);
+
+            config->addFilterResult(result, 1);
+
+            if( outr != NULL &&  result == PASS_FILTER) {
+                outr->appendToString(outstr);
+
+                passed = true;
+                // stats the read after filtering
+                config->getPostStats1()->statRead(outr);
+                readPassed++;
+            } else if(mFailedWriter && outReads.size() == 1) {
+                or1->appendToStringWithTag(failedOut, FAILED_TYPES[result]);
+            }
+
+            // release the read if it's created by breaking gap
+            if(outr != or1 && outr!= r1 && outr != NULL)
+                recycleToPool(tid, outr);
         }
 
-        int result = mFilter->passFilter(r1);
-
-        config->addFilterResult(result, 1);
-
-        if( r1 != NULL &&  result == PASS_FILTER) {
-            r1->appendToString(outstr);
-
-            // stats the read after filtering
-            config->getPostStats1()->statRead(r1);
-            readPassed++;
-        } else if(mFailedWriter) {
-            or1->appendToStringWithTag(failedOut, FAILED_TYPES[result]);
-        }
-
-        recycleToPool(tid, or1);
         // if no trimming applied, r1 should be identical to or1
         if(r1 != or1 && r1 != NULL)
             recycleToPool(tid, r1);
+
+        recycleToPool(tid, or1);
     }
 
     if(mOptions->outputToSTDOUT) {

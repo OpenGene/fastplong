@@ -32,6 +32,7 @@ public:
     void convertPhred64To33();
     void trimFront(int len);
     bool fixMGI();
+    vector<Read*> breakByGap(int start, int len);
 
 public:
     static bool test();

@@ -9,8 +9,28 @@ AdapterTrimmer::AdapterTrimmer(){
 AdapterTrimmer::~AdapterTrimmer(){
 }
 
+bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& endAdapter, int& start, int& len, double edMax) {
+    len = -1;
 
-int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList) {
+    int startAdaterPos = searchMiddleAdapter(r->mSeq, startAdater, edMax);
+    int endAdapterPos = searchMiddleAdapter(r->mSeq, endAdapter, edMax);
+
+    if(startAdaterPos >=0 && endAdapterPos>=0) {
+        start = min(startAdaterPos, endAdapterPos);
+        int end = max(startAdaterPos + startAdater.length(), endAdapterPos + endAdapter.length());
+
+        // extend it to make a cleaner cut
+        start = max(0, start-20);
+        end = min(r->length(), end+20);
+
+        len = end - start;
+        return true;
+    }
+
+    return false;
+}
+
+int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList, double edMax) {
     int matchReq = 4;
     if(adapterList.size() > 16)
         matchReq = 5;
@@ -20,11 +40,45 @@ int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<strin
 
     string* originalSeq = r->mSeq;
     for(int i=0; i<adapterList.size(); i++) {
-        trimmed += trimBySequenceStart(r, fr, adapterList[i], matchReq);
-        trimmed += trimBySequenceEnd(r, fr, adapterList[i], matchReq);
+        trimmed += trimBySequenceStart(r, fr, adapterList[i], edMax);
+        trimmed += trimBySequenceEnd(r, fr, adapterList[i], edMax);
     }
 
     return trimmed;
+}
+
+int AdapterTrimmer::searchMiddleAdapter(string* read, string& adapter, double edMax) {
+    int minMismatch = 99999; // initialized with a large mismatch
+    int pos = -1;
+    // for the best match
+    const char* adata = adapter.c_str();
+    const char* rdata = read->c_str();
+    int rlen = read->length();
+    int alen = adapter.length();
+
+    int threshold = round(edMax * alen);
+
+    for(int p = 0; p < rlen - alen; p++) {
+        int mismatch = 0;
+        for(int i=0; i<alen; i++) {
+            if(rdata[p+i] != adata[i])
+                mismatch++;
+        }
+        if(mismatch < minMismatch ) {
+            minMismatch = mismatch;
+            pos = p;
+        }
+    }
+
+    if(pos >= 0 ) {
+        int ed = edit_distance(rdata+pos, alen, adata, alen);
+        if(ed < threshold)
+            return pos;
+        else
+            return -1;
+    } else
+        return -1;
+    
 }
 
 int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax) {

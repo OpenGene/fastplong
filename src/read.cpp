@@ -188,6 +188,31 @@ bool Read::fixMGI() {
 	return false;
 }
 
+vector<Read*> Read::breakByGap(int start, int len) {
+	vector<Read*> out;
+	int len1 = start;
+	int len2 = length() - start - len;
+	if(len1 > 0 ) {
+		string* seq = new string(*mSeq, 0, start);
+		string* qual = new string(*mQuality, 0, start);
+		string* name = new string(*mName);
+		name->append(" left");
+		string* strand = new string(*mStrand);
+		Read* r = new Read(name, seq, strand, qual );
+		out.push_back(r);
+	}
+	if(len2 > 0 ) {
+		string* seq = new string(*mSeq, start+len, len2);
+		string* qual = new string(*mQuality, start+len, len2);
+		string* name = new string(*mName);
+		name->append(" right");
+		string* strand = new string(*mStrand);
+		Read* r = new Read(name, seq, strand, qual );
+		out.push_back(r);
+	}
+	return out;
+}
+
 bool Read::test(){
 	Read r(new string("@NS500713:64:HFKJJBGXY:1:11101:20469:1097 1:N:0:TATAGCCT+GGTCCCGA"),
 		new string("CTCTTGGACTCTAACACTGTTTTTTCTTATGAAAACACAGGAGTGATGACTAGTTGAGTGCATTCTTATGAGACTCATAGTCATTCTATGATGTAGTTTTCCTTAGGAGGACATTTTTTACATGAAATTATTAACCTAAATAGAGTTGATC"),
