@@ -221,6 +221,7 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             if(foundMiddleAdapter) {
                 //break the read
                 outReads = r1->breakByGap(start, len);
+                //cerr << "break at " << start << ", " << len << endl;
             } else {
                 outReads.push_back(r1);
             }
@@ -240,7 +241,6 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
                 passed = true;
                 // stats the read after filtering
                 config->getPostStats1()->statRead(outr);
-                readPassed++;
             } else if(mFailedWriter && outReads.size() == 1) {
                 or1->appendToStringWithTag(failedOut, FAILED_TYPES[result]);
             }
@@ -249,6 +249,9 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             if(outr != or1 && outr!= r1 && outr != NULL)
                 recycleToPool(tid, outr);
         }
+
+        if(passed)
+            readPassed++;
 
         // if no trimming applied, r1 should be identical to or1
         if(r1 != or1 && r1 != NULL)

@@ -25,6 +25,18 @@ bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& en
 
         len = end - start;
         return true;
+    } if(startAdaterPos >=0){
+         // extend it to make a cleaner cut
+        int end = min(r->length(), startAdaterPos + len +20); 
+        start = max(0, startAdaterPos-20);
+        len = end - start;
+        return true;
+    } if(endAdapterPos >=0){
+         // extend it to make a cleaner cut
+        int end = min(r->length(), endAdapterPos + len +20); 
+        start = max(0, endAdapterPos-20);
+        len = end - start;
+        return true;
     }
 
     return false;
