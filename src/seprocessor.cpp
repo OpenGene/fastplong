@@ -221,7 +221,8 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             if(foundMiddleAdapter) {
                 //break the read
                 outReads = r1->breakByGap(start, len);
-                //cerr << "break at " << start << ", " << len << endl;
+                //cerr << "break at " << start << ", " << len << ", read len: " << r1->length() << endl;
+                //cerr << r1->mSeq->substr(start, len) << endl;
             } else {
                 outReads.push_back(r1);
             }

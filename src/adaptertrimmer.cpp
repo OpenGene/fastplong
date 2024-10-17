@@ -15,26 +15,25 @@ bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& en
     int startAdaterPos = searchAdapter(r->mSeq, startAdater, edMax);
     int endAdapterPos = searchAdapter(r->mSeq, endAdapter, edMax);
 
+     // extend it to make a cleaner cut
+    const int EXTEND = 20;
+
     if(startAdaterPos >=0 && endAdapterPos>=0) {
         start = min(startAdaterPos, endAdapterPos);
         int end = max(startAdaterPos + startAdater.length(), endAdapterPos + endAdapter.length());
 
-        // extend it to make a cleaner cut
-        start = max(0, start-20);
-        end = min(r->length(), end+20);
-
+        start = max(0, start-EXTEND);
+        end = min(r->length(), end+EXTEND);
         len = end - start;
         return true;
     } if(startAdaterPos >=0){
-         // extend it to make a cleaner cut
-        int end = min(r->length(), startAdaterPos + len +20); 
-        start = max(0, startAdaterPos-20);
+        int end = min(r->length(), startAdaterPos + (int)startAdater.length() +EXTEND); 
+        start = max(0, startAdaterPos-EXTEND);
         len = end - start;
         return true;
     } if(endAdapterPos >=0){
-         // extend it to make a cleaner cut
-        int end = min(r->length(), endAdapterPos + len +20); 
-        start = max(0, endAdapterPos-20);
+        int end = min(r->length(), endAdapterPos + (int)endAdapter.length() +EXTEND); 
+        start = max(0, endAdapterPos-EXTEND);
         len = end - start;
         return true;
     }
