@@ -112,10 +112,24 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
         return 0;
 
     int plen = min(PATTERN_LEN, alen);
-
     int pos = -1;
+
+    // search by full match
+    pos = searchAdapter(r->mSeq, adapterseq, edMax, 0, WINDOW);
+    if(pos >= 0) {
+        int cmplen = min(pos+plen, alen);
+        if(fr) {
+            fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
+            r->trimFront(pos + plen);
+            return pos+plen;
+        }
+    }
+
+    // adapter not found by above full match
+    // search part adapter
+
     int mined = -1;
-    //from tail to front, match by edit distance
+    //from tail to front, search by partly match of edit distance
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
         int ed = edit_distance(rdata + p, plen, adata + alen - plen, plen);
         if(ed< round(edMax * plen)) {
@@ -159,8 +173,22 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
         return false;
 
     int plen = min(PATTERN_LEN, alen);
-
     int pos = -1;
+
+    // search by full match
+    int searchStart = max(0, rlen - WINDOW);
+    pos = searchAdapter(r->mSeq, adapterseq, edMax, searchStart, WINDOW);
+    if(pos >= 0) {
+        int cmplen = min(pos+plen, alen);
+        if(fr)
+            fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
+        r->resize(rlen - plen -pos);
+        return pos + plen;
+    }
+
+    // adapter not found by above full match
+    // search part adapter
+
     int mined = -1;
     //from tail to front
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
