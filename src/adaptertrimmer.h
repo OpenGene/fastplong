@@ -19,7 +19,7 @@ public:
     static int trimBySequenceEnd(Read* r1, FilterResult* fr, string& adapter, double edMax = 0.3);
     static int trimByMultiSequences(Read* r1, FilterResult* fr, vector<string>& adapterList, double edMax = 0.3);
     static bool findMiddleAdapters(Read* r, string& startAdater, string& endAdapter, int& start, int& len, double edMax = 0.3);
-    static int searchMiddleAdapter(string* read, string& adapter, double edMax = 0.3);
+    static int searchAdapter(string* read, string& adapter, double edMax = 0.3, int searchStart = 0, int searchLen = -1);
     static bool test();
 
 

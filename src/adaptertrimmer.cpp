@@ -12,8 +12,8 @@ AdapterTrimmer::~AdapterTrimmer(){
 bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& endAdapter, int& start, int& len, double edMax) {
     len = -1;
 
-    int startAdaterPos = searchMiddleAdapter(r->mSeq, startAdater, edMax);
-    int endAdapterPos = searchMiddleAdapter(r->mSeq, endAdapter, edMax);
+    int startAdaterPos = searchAdapter(r->mSeq, startAdater, edMax);
+    int endAdapterPos = searchAdapter(r->mSeq, endAdapter, edMax);
 
     if(startAdaterPos >=0 && endAdapterPos>=0) {
         start = min(startAdaterPos, endAdapterPos);
@@ -59,7 +59,7 @@ int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<strin
     return trimmed;
 }
 
-int AdapterTrimmer::searchMiddleAdapter(string* read, string& adapter, double edMax) {
+int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, int searchStart, int searchLen) {
     int minMismatch = 99999; // initialized with a large mismatch
     int pos = -1;
     // for the best match
@@ -70,7 +70,12 @@ int AdapterTrimmer::searchMiddleAdapter(string* read, string& adapter, double ed
 
     int threshold = round(edMax * alen);
 
-    for(int p = 0; p < rlen - alen; p++) {
+    int searchEnd = rlen;
+    if(searchLen > 0) {
+        searchEnd = min(rlen, searchLen + searchStart);
+    }
+
+    for(int p = searchStart; p < searchEnd - alen; p++) {
         int mismatch = 0;
         for(int i=0; i<alen; i++) {
             if(rdata[p+i] != adata[i])
@@ -110,7 +115,7 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
 
     int pos = -1;
     int mined = -1;
-    //from tail to front
+    //from tail to front, match by edit distance
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
         int ed = edit_distance(rdata + p, plen, adata + alen - plen, plen);
         if(ed< round(edMax * plen)) {
