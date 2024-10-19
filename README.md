@@ -118,11 +118,11 @@ New filters are being implemented. If you have a new idea or new request, please
 
 # adapters
 `fastplong` trims adapter in both read start and read end. Adapter trimming is enabled by default, but you can disable it by `-A` or `--disable_adapter_trimming`.
-* You can specify `-s, --start_adapter` for read start adapter sequence, and `-e, --end_adapter` for read end adapter sequence as well. If either of these sequence is not specified, `fastplong` will try to detect it automatically.
+* If the adapter sequences are known, it's recommended to specify `-s, --start_adapter` for read start adapter sequence, and `-e, --end_adapter` for read end adapter sequence as well.
 
 * If `--end_adapter` is not specified but `--start_adapter` is specified, then fastplong will use the reverse complement sequence of `start_adapter` to be `end_adapter`.
 
-You can also specify `-a, --adapter_fasta` to give a FASTA file to tell `fastplong` to trim multiple adapters in this FASTA file. Here is a sample of such adapter FASTA file:
+* You can also specify `-a, --adapter_fasta` to give a FASTA file to tell `fastplong` to trim multiple adapters in this FASTA file. Here is a sample of such adapter FASTA file:
 ```
 >Adapter 1
 AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
@@ -133,6 +133,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ```
 
 The adapter sequence in this file should be at least 6bp long, otherwise it will be skipped. And you can give whatever you want to trim, rather than regular sequencing adapters (i.e. polyA).
+
+* If all these adapter options (`start_adapter`, `end_adapter` and `adapter_fasta`) are not specified, `fastplong` will try to detect the read start and read end adapters automatically. The detected adapter sequences may be a bit shorter or longer than the real ones, and probably in some cases it will result in misdetection. 
 
 # per read cutting by quality score
 `fastplong` supports per read sliding window cutting by evaluating the mean quality scores in the sliding window. `fastplong` supports 2 different operations, and you enable one or both:
@@ -182,6 +184,8 @@ options:
   -s, --start_adapter                the adapter sequence at read start (5'). (string [=auto])
   -e, --end_adapter                  the adapter sequence at read end (3'). (string [=auto])
   -a, --adapter_fasta                specify a FASTA file to trim both read by all the sequences in this FASTA file (string [=])
+  -d, --distance_threshold           threshold of sequence-adapter-distance/adapter-length (0.0 ~ 1.0), greater value means more adapters detected (double [=0.25])
+      --trimming_extension           when an adapter is detected, extend the trimming to make cleaner trimming, default 10 means trimming 10 bases more (int [=10])
   -f, --trim_front                   trimming how many bases in front for read, default is 0 (int [=0])
   -t, --trim_tail                    trimming how many bases in tail for read, default is 0 (int [=0])
   -x, --trim_poly_x                  enable polyX trimming in 3' ends.
