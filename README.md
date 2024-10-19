@@ -132,9 +132,13 @@ AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ```
 
-The adapter sequence in this file should be at least 6bp long, otherwise it will be skipped. And you can give whatever you want to trim, rather than regular sequencing adapters (i.e. polyA).
+* The adapter sequence in the FASTA file should be at least 6bp long, otherwise it will be skipped. And you can give whatever you want to trim, rather than regular sequencing adapters (i.e. polyA).
 
-* If all these adapter options (`start_adapter`, `end_adapter` and `adapter_fasta`) are not specified, `fastplong` will try to detect the read start and read end adapters automatically. The detected adapter sequences may be a bit shorter or longer than the real ones, and probably in some cases it will result in misdetection. 
+* If all these adapter options (`start_adapter`, `end_adapter` and `adapter_fasta`) are not specified, `fastplong` will try to detect the read start and read end adapters automatically. The detected adapter sequences may be a bit shorter or longer than the real ones. And there is a certain probability of misidentification, especially when most reads don't have adapters (it won't cause too bad result in this case).
+
+* fastplong calculates edit distance when detecting adapters. You can specify the `-d, --distance_threshold` to adjust the mismatch tolerance of adapter comparing. The default value is 0.25, which means allowing 25% mismatch ratio (i.e. allow 10 distance for 40bp adapter). Suggest to increase this value when the data is much noisy (high error rate), and decrease this value when the data is with high quality (low error rate).
+
+* to make a cleaner trimming, fastplong will trim a little more bases connected to the adapters. This option can be specified by `--trimming_extension`, with a default value of 10.
 
 # per read cutting by quality score
 `fastplong` supports per read sliding window cutting by evaluating the mean quality scores in the sliding window. `fastplong` supports 2 different operations, and you enable one or both:
