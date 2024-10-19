@@ -102,6 +102,8 @@ public:
     AdapterOptions() {
         enabled = true;
         detected = false;
+        trimmingExtension = 10;
+        edMax = 0.25;
     }
 public:
     bool enabled;
@@ -111,6 +113,10 @@ public:
     string fastaFile;
     bool detected;
     bool hasFasta;
+    // extend to make a cleaner trimming
+    int trimmingExtension;
+    // the threshold of edit_distance/match_length, suggest (0.1 ~ 0.3)
+    double edMax;
 };
 
 class TrimmingOptions {

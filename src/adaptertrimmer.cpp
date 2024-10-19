@@ -9,31 +9,28 @@ AdapterTrimmer::AdapterTrimmer(){
 AdapterTrimmer::~AdapterTrimmer(){
 }
 
-bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& endAdapter, int& start, int& len, double edMax) {
+bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& endAdapter, int& start, int& len, double edMax, int trimmingExtension) {
     len = -1;
 
     int startAdaterPos = searchAdapter(r->mSeq, startAdater, edMax);
     int endAdapterPos = searchAdapter(r->mSeq, endAdapter, edMax);
 
-     // extend it to make a cleaner cut
-    const int EXTEND = 20;
-
     if(startAdaterPos >=0 && endAdapterPos>=0) {
         start = min(startAdaterPos, endAdapterPos);
         int end = max(startAdaterPos + startAdater.length(), endAdapterPos + endAdapter.length());
 
-        start = max(0, start-EXTEND);
-        end = min(r->length(), end+EXTEND);
+        start = max(0, start-trimmingExtension);
+        end = min(r->length(), end+trimmingExtension);
         len = end - start;
         return true;
     } if(startAdaterPos >=0){
-        int end = min(r->length(), startAdaterPos + (int)startAdater.length() +EXTEND); 
-        start = max(0, startAdaterPos-EXTEND);
+        int end = min(r->length(), startAdaterPos + (int)startAdater.length() +trimmingExtension); 
+        start = max(0, startAdaterPos-trimmingExtension);
         len = end - start;
         return true;
     } if(endAdapterPos >=0){
-        int end = min(r->length(), endAdapterPos + (int)endAdapter.length() +EXTEND); 
-        start = max(0, endAdapterPos-EXTEND);
+        int end = min(r->length(), endAdapterPos + (int)endAdapter.length() +trimmingExtension); 
+        start = max(0, endAdapterPos-trimmingExtension);
         len = end - start;
         return true;
     }
@@ -41,7 +38,7 @@ bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& en
     return false;
 }
 
-int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList, double edMax) {
+int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<string>& adapterList, double edMax, int trimmingExtension) {
     int matchReq = 4;
     if(adapterList.size() > 16)
         matchReq = 5;
@@ -51,14 +48,14 @@ int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<strin
 
     string* originalSeq = r->mSeq;
     for(int i=0; i<adapterList.size(); i++) {
-        trimmed += trimBySequenceStart(r, fr, adapterList[i], edMax);
-        trimmed += trimBySequenceEnd(r, fr, adapterList[i], edMax);
+        trimmed += trimBySequenceStart(r, fr, adapterList[i], edMax, trimmingExtension);
+        trimmed += trimBySequenceEnd(r, fr, adapterList[i], edMax, trimmingExtension);
     }
 
     return trimmed;
 }
 
-int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, int searchStart, int searchLen) {
+int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, int searchStart, int searchLen, bool asLeftAsPossible, bool asRightAsPossible) {
     int minMismatch = 99999; // initialized with a large mismatch
     int pos = -1;
     // for the best match
@@ -74,21 +71,58 @@ int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, i
         searchEnd = min(rlen, searchLen + searchStart);
     }
 
-    for(int p = searchStart; p < searchEnd - alen; p++) {
-        int mismatch = 0;
-        for(int i=0; i<alen; i++) {
-            if(rdata[p+i] != adata[i])
-                mismatch++;
+    if(searchStart + alen > rlen )
+        return -1;
+
+    if(asLeftAsPossible) {
+        // go from left, and return immediatedly if find a mismatch < threshold
+        for(int p = searchStart; p < searchEnd - alen; p++) {
+            int mismatch = 0;
+            for(int i=0; i<alen; i++) {
+                if(rdata[p+i] != adata[i])
+                    mismatch++;
+            }
+            if(mismatch <= threshold) {
+                return p;
+            }
+            if(mismatch <= minMismatch ) {
+                minMismatch = mismatch;
+                pos = p;
+            }
         }
-        if(mismatch < minMismatch ) {
-            minMismatch = mismatch;
-            pos = p;
+    } else if(asRightAsPossible && searchEnd > alen) {
+        // go from right, and return immediatedly if find a mismatch <= threshold
+        for(int p = searchEnd - alen - 1 ; p >= searchStart ; p--) {
+            int mismatch = 0;
+            for(int i=0; i<alen; i++) {
+                if(rdata[p+i] != adata[i])
+                    mismatch++;
+            }
+            if(mismatch <= threshold) {
+                return p;
+            }
+            if(mismatch <= minMismatch ) {
+                minMismatch = mismatch;
+                pos = p;
+            }
+        }
+    } else {
+        for(int p = searchStart; p < searchEnd - alen; p++) {
+            int mismatch = 0;
+            for(int i=0; i<alen; i++) {
+                if(rdata[p+i] != adata[i])
+                    mismatch++;
+            }
+            if(mismatch < minMismatch ) {
+                minMismatch = mismatch;
+                pos = p;
+            }
         }
     }
 
     if(pos >= 0 ) {
         int ed = edit_distance(rdata+pos, alen, adata, alen);
-        if(ed < threshold)
+        if(ed <= threshold)
             return pos;
         else
             return -1;
@@ -97,7 +131,7 @@ int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, i
     
 }
 
-int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax, int trimmingExtension) {
     const int WINDOW = 200;
     const int PATTERN_LEN = 16;
 
@@ -111,16 +145,17 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
         return 0;
 
     int plen = min(PATTERN_LEN, alen);
-    int pos = -1;
 
     // search by full match
-    pos = searchAdapter(r->mSeq, adapterseq, edMax, 0, WINDOW);
-    if(pos >= 0) {
+    int mpos = searchAdapter(r->mSeq, adapterseq, edMax, 0, WINDOW, false, true);
+    if(mpos >= 0) {
+        // extend to make a cleaner trimming
+        mpos = min(mpos + trimmingExtension, rlen - alen);
         if(fr) 
             fr->addAdapterTrimmed(adapterseq);
-        r->trimFront(pos + alen);
+        r->trimFront(mpos + alen);
         //cout << "L " << pos << endl;
-        return pos+alen;
+        return mpos+alen;
     }
 
     // adapter not found by above full match
@@ -128,11 +163,11 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
 
     int mined = -1;
     // reset pos;
-    pos = -1;
+    int pos = -1;
     //from tail to front, search by partly match of edit distance
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
         int ed = edit_distance(rdata + p, plen, adata + alen - plen, plen);
-        if(ed< round(edMax * plen)) {
+        if(ed <= round(edMax * plen)) {
             if(pos < 0) {
                 pos = p;
                 mined = ed;
@@ -150,7 +185,9 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
         // extend to compare the whole adapter
         int cmplen = min(pos+plen, alen);
         int ed = edit_distance(rdata + pos + plen - cmplen, cmplen, adata + alen - cmplen, cmplen);
-        if( ed < round(edMax * cmplen) ){
+        if( ed <= round(edMax * cmplen) ){
+            // extend to make a cleaner trimming
+             pos = min(pos + trimmingExtension, rlen - alen);
             if(fr)
                 fr->addAdapterTrimmed(adapterseq.substr(alen - cmplen, cmplen));
             //cout << r->mSeq->substr(0, pos + plen) << endl;
@@ -164,7 +201,7 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
     return 0;
 }
 
-int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, double edMax) {
+int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapterseq, double edMax, int trimmingExtension) {
     const int WINDOW = 200;
     const int PATTERN_LEN = 16;
 
@@ -178,17 +215,18 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
         return false;
 
     int plen = min(PATTERN_LEN, alen);
-    int pos = -1;
 
     // search by full match
     int searchStart = max(0, rlen - WINDOW);
-    pos = searchAdapter(r->mSeq, adapterseq, edMax, searchStart, WINDOW);
-    if(pos >= 0) {
+    int mpos = searchAdapter(r->mSeq, adapterseq, edMax, searchStart, WINDOW, true, false);
+    if(mpos >= 0) {
+        // extend to make a cleaner trimming
+        mpos = max(0, mpos - trimmingExtension);
         if(fr)
             fr->addAdapterTrimmed(adapterseq);
-        r->resize(rlen - alen -pos);
+        r->resize(mpos);
         //cout << "R " << pos << endl;
-        return pos + alen;
+        return rlen - mpos;
     }
 
     // adapter not found by above full match
@@ -196,11 +234,11 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
 
     int mined = -1;
     // reset pos;
-    pos = -1;
+    int pos = -1;
     //from tail to front
     for(int p=0; p<rlen-plen && p<WINDOW - plen; p++) {
         int ed = edit_distance(rdata + rlen - plen -p, plen, adata, plen);
-        if(ed< round(edMax * plen)) {
+        if(ed <= round(edMax * plen)) {
             if(pos < 0) {
                 pos = p;
                 mined = ed;
@@ -216,7 +254,9 @@ int AdapterTrimmer::trimBySequenceEnd(Read* r, FilterResult* fr, string& adapter
     if(pos > 0) {
         // extend to compare the whole adapter
         int cmplen = min(pos+plen, alen);
-        if(edit_distance(rdata + rlen -plen - pos, cmplen, adata, cmplen) < round(edMax * cmplen) ){
+        if(edit_distance(rdata + rlen -plen - pos, cmplen, adata, cmplen) <= round(edMax * cmplen) ){
+            // extend to make a cleaner trimming
+            pos = min(pos + trimmingExtension, rlen - plen);
             if(fr)
                 fr->addAdapterTrimmed(adapterseq.substr(0, cmplen));
             r->resize(rlen - plen -pos);

@@ -204,11 +204,11 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
         if(r1 != NULL && mOptions->adapter.enabled){
             int trimmed = 0;
             if(!mOptions->adapter.sequenceStart.empty())
-                trimmed += AdapterTrimmer::trimBySequenceStart(r1, config->getFilterResult(), mOptions->adapter.sequenceStart);
+                trimmed += AdapterTrimmer::trimBySequenceStart(r1, config->getFilterResult(), mOptions->adapter.sequenceStart, mOptions->adapter.edMax, mOptions->adapter.trimmingExtension);
             if(!mOptions->adapter.sequenceEnd.empty())
-                trimmed += AdapterTrimmer::trimBySequenceEnd(r1, config->getFilterResult(), mOptions->adapter.sequenceEnd);
+                trimmed += AdapterTrimmer::trimBySequenceEnd(r1, config->getFilterResult(), mOptions->adapter.sequenceEnd,mOptions->adapter.edMax, mOptions->adapter.trimmingExtension);
             if(mOptions->adapter.hasFasta) {
-                trimmed += AdapterTrimmer::trimByMultiSequences(r1, config->getFilterResult(), mOptions->adapter.seqsInFasta);
+                trimmed += AdapterTrimmer::trimByMultiSequences(r1, config->getFilterResult(), mOptions->adapter.seqsInFasta, mOptions->adapter.edMax,mOptions->adapter.trimmingExtension);
             }
             if(trimmed > 0) {
                 config->getFilterResult()->addReadTrimmed(trimmed);
@@ -217,7 +217,7 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             //search for middle adapter
             int start = -1;
             int len = 0;
-            bool foundMiddleAdapter = AdapterTrimmer::findMiddleAdapters(r1, mOptions->adapter.sequenceStart, mOptions->adapter.sequenceEnd, start, len);
+            bool foundMiddleAdapter = AdapterTrimmer::findMiddleAdapters(r1, mOptions->adapter.sequenceStart, mOptions->adapter.sequenceEnd, start, len, mOptions->adapter.edMax,mOptions->adapter.trimmingExtension);
             if(foundMiddleAdapter) {
                 //break the read
                 outReads = r1->breakByGap(start, len);
