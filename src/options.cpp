@@ -185,6 +185,13 @@ bool Options::validate() {
         }
     }
 
+    if(adapter.edMax <0 || adapter.edMax > 1.0) {
+        error_exit("the adapter <distance_threshold> should be 0.0 ~ 1.0, suggest 0.1 ~ 0.3");
+    }
+    if(adapter.trimmingExtension <0 || adapter.trimmingExtension > 100) {
+        error_exit("the adapter <trimming_extension> should be 0 ~ 100, suggest 5 ~ 30");
+    }
+
 
     return true;
 }

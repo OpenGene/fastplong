@@ -47,6 +47,8 @@ int main(int argc, char* argv[]){
     cmd.add<string>("start_adapter", 's', "the adapter sequence at read start (5').", false, "auto");
     cmd.add<string>("end_adapter", 'e', "the adapter sequence at read end (3').", false, "auto");
     cmd.add<string>("adapter_fasta", 'a', "specify a FASTA file to trim both read by all the sequences in this FASTA file", false, "");
+    cmd.add<double>("distance_threshold", 'd', "threshold of sequence-adapter-distance/adapter-length (0.0 ~ 1.0), greater value means more adapters detected", false, 0.25);
+    cmd.add<int>("trimming_extension", 0, "when an adapter is detected, extend the trimming to make cleaner trimming, default 10 means trimming 10 bases more", false, 10);
 
     // trimming
     cmd.add<int>("trim_front", 'f', "trimming how many bases in front for read, default is 0", false, 0);
@@ -125,6 +127,8 @@ int main(int argc, char* argv[]){
     opt.adapter.sequenceStart = cmd.get<string>("start_adapter");
     opt.adapter.sequenceEnd = cmd.get<string>("end_adapter");
     opt.adapter.fastaFile = cmd.get<string>("adapter_fasta");
+    opt.adapter.edMax = cmd.get<double>("distance_threshold");
+    opt.adapter.trimmingExtension = cmd.get<int>("trimming_extension");
 
     // if the start adapter is specified and the end is not, use the reverse complement of start adapter
     if(opt.adapter.sequenceStart != "auto" && opt.adapter.sequenceEnd == "auto") {
