@@ -1,3 +1,5 @@
+[![install with conda](
+https://anaconda.org/bioconda/fastplong/badges/version.svg)](https://anaconda.org/bioconda/fastplong)
 # fastplong
 Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.).   
 If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use [fastp](https://github.com/OpenGene/fastp)  
@@ -5,6 +7,7 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
 - [simple usage](#simple-usage)
 - [examples of report](#examples-of-report)
 - [get fastplong](#get-fastplong)
+  - [install with Bioconda](#install-with-bioconda)
   - [download the latest prebuilt binary for Linux users](#download-the-latest-prebuilt-binary-for-linux-users)
   - [or compile from source](#or-compile-from-source)
     - [Step 1: install isa-l](#step-1-install-isa-l)
@@ -42,6 +45,12 @@ Both input and output can be gzip compressed. By default, the HTML report is sav
 * JSON report: http://opengene.org/fastplong/fastplong.json
 
 # get fastplong
+## install with Bioconda
+[![install with conda](
+https://anaconda.org/bioconda/fastplong/badges/version.svg)](https://anaconda.org/bioconda/fastplong)
+```shell
+conda install -c bioconda fastplong
+```
 ## download the latest prebuilt binary for Linux users
 This binary was compiled on CentOS, and tested on CentOS/Ubuntu
 ```shell
