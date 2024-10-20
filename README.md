@@ -118,6 +118,10 @@ New filters are being implemented. If you have a new idea or new request, please
 
 # adapters
 `fastplong` trims adapter in both read start and read end. Adapter trimming is enabled by default, but you can disable it by `-A` or `--disable_adapter_trimming`.
+
+```
+fastplong -i in.fq -o out.fq -s AATGTACTTCGTTCAGTTACGTATTGCTAAGGTTAAAAGGATTCATTCCCACGGTAACACCAGCACCT -e AGGTGCTGGTGTTACCGTGGGAATGAATCCTTTTAACCTTAGCAATACGTAACTGAACGAAGT
+```
 * If the adapter sequences are known, it's recommended to specify `-s, --start_adapter` for read start adapter sequence, and `-e, --end_adapter` for read end adapter sequence as well.
 
 * If `--end_adapter` is not specified but `--start_adapter` is specified, then fastplong will use the reverse complement sequence of `start_adapter` to be `end_adapter`.
