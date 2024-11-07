@@ -31,6 +31,7 @@ SingleEndProcessor::~SingleEndProcessor() {
         delete mReadPool;
         mReadPool = NULL;
     }
+    delete[] mInputLists;
 }
 
 void SingleEndProcessor::initOutput() {
