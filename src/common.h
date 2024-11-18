@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define FASTPLONG_VER "0.2.0"
+#define FASTPLONG_VER "0.2.1"
 
 #define _DEBUG false
 
