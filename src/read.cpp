@@ -197,7 +197,7 @@ vector<Read*> Read::breakByGap(int start, int len) {
 		string* seq = new string(*mSeq, 0, start);
 		string* qual = new string(*mQuality, 0, start);
 		string* name = new string(*mName);
-		name->append(" left");
+		name->insert(1, "split-by-adapter-left-");
 		string* strand = new string(*mStrand);
 		Read* r = new Read(name, seq, strand, qual );
 		out.push_back(r);
@@ -206,7 +206,7 @@ vector<Read*> Read::breakByGap(int start, int len) {
 		string* seq = new string(*mSeq, start+len, len2);
 		string* qual = new string(*mQuality, start+len, len2);
 		string* name = new string(*mName);
-		name->append(" right");
+		name->insert(1,"split-by-adapter-right-");
 		string* strand = new string(*mStrand);
 		Read* r = new Read(name, seq, strand, qual );
 		out.push_back(r);
