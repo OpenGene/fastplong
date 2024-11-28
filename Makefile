@@ -51,6 +51,11 @@ ${DIR_OBJ}/%.o:${DIR_TEST}/%.cpp
 	@mkdir -p $(@D) 
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
+test-static: ${TEST_OBJ} ${OBJ}
+	@mkdir -p bin
+	$(CXX) $(TEST_OBJ) ${OBJ:./obj/main.o=} -o ${TEST_TARGET} $(STATIC_LD_FLAGS) -lgtest -lgtest_main
+	./${TEST_TARGET}
+
 test:${TEST_OBJ} ${OBJ}
 	@mkdir -p bin
 	$(CXX) $(TEST_OBJ) ${OBJ:./obj/main.o=} -o ${TEST_TARGET} $(LD_FLAGS) -lgtest -lgtest_main

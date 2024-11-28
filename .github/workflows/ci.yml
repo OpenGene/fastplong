@@ -67,8 +67,8 @@ jobs:
         run: bash -c 'make -j $(nproc) static'
         if: runner.os == 'Linux'
 
-      - name: make fastp static (Ubuntu)
-        run: bash -c 'make -j $(nproc) test'
+      - name: make test (Ubuntu)
+        run: bash -c 'make -j $(nproc) test-static'
         if: runner.os == 'Linux'
 
       - name: test
