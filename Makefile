@@ -16,7 +16,7 @@ TEST_OBJ := $(patsubst %.cpp,${DIR_OBJ}/%.o,$(notdir ${TEST}))
 TARGET := fastplong
 
 BIN_TARGET := ${TARGET}
-TEST_TARGET := fastplong_unittest
+TEST_TARGET := bin/fastplong_unittest
 
 CXX ?= g++
 CXXFLAGS := -std=c++14 -pthread -g -O3 -MP -MD -I${DIR_INC} -I${DIR_SRC} $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir)) ${CXXFLAGS}
