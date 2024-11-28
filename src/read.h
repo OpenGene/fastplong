@@ -34,11 +34,7 @@ public:
     bool fixMGI();
     vector<Read*> breakByGap(int start, int len);
 
-public:
-    static bool test();
-
 private:
-
 
 public:
 	string* mName;

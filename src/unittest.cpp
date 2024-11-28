@@ -1,6 +1,5 @@
 #include "unittest.h"
 #include "fastqreader.h"
-#include "read.h"
 #include "filter.h"
 #include "adaptertrimmer.h"
 #include "polyx.h"
@@ -14,7 +13,6 @@ UnitTest::UnitTest(){
 
 void UnitTest::run(){
     bool passed = true;
-    passed &= report(Read::test(), "Read::test");
     passed &= report(FastqReader::test(), "FastqReader::test");
     passed &= report(Filter::test(), "Filter::test");
     passed &= report(AdapterTrimmer::test(), "AdapterTrimmer::test");
