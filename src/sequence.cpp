@@ -3,7 +3,7 @@
 Sequence::Sequence(){
 }
 
-Sequence::Sequence(string*  seq){
+Sequence::Sequence(string* seq){
     mStr = seq;
 }
 
@@ -49,33 +49,9 @@ string Sequence::reverseComplement(string* origin) {
     return str;
 }
 
-Sequence Sequence::reverseComplement(){
-    string*  str = new string(mStr->length(), 0);
-    int len = mStr->length();
-    for(int c=0;c<mStr->length();c++){
-        char base = (*mStr)[c];
-        switch(base){
-            case 'A':
-            case 'a':
-                (*str)[len-c-1] = 'T';
-                break;
-            case 'T':
-            case 't':
-                (*str)[len-c-1] = 'A';
-                break;
-            case 'C':
-            case 'c':
-                (*str)[len-c-1] = 'G';
-                break;
-            case 'G':
-            case 'g':
-                (*str)[len-c-1] = 'C';
-                break;
-            default:
-                (*str)[len-c-1] = 'N';
-        }
-    }
-    return Sequence(str);
+Sequence Sequence::reverseComplement() {
+    string* reversed = new string(Sequence::reverseComplement(mStr));
+    return Sequence(reversed);
 }
 
 Sequence Sequence::operator~(){
