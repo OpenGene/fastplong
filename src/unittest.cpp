@@ -1,5 +1,4 @@
 #include "unittest.h"
-#include "sequence.h"
 #include "fastqreader.h"
 #include "read.h"
 #include "filter.h"
@@ -15,7 +14,6 @@ UnitTest::UnitTest(){
 
 void UnitTest::run(){
     bool passed = true;
-    passed &= report(Sequence::test(), "Sequence::test");
     passed &= report(Read::test(), "Read::test");
     passed &= report(FastqReader::test(), "FastqReader::test");
     passed &= report(Filter::test(), "Filter::test");

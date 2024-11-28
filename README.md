@@ -67,11 +67,11 @@ chmod a+x ./fastplong
 `fastplong` depends on `libdeflate` and `isa-l` for fast decompression and compression of zipped data.
 
 ### Step 1: install isa-l
-It's recommended that to install it using your package manager, for example `apt install isa-l` on ubuntu, or `brew install isa-l` on Mac. Otherwise you can compile it from source. Please be noted that `isa-l` is not compatible with gcc 4.8 or older versions. See https://github.com/intel/isa-l
+It's recommended that to install it using your package manager, for example `apt install libisal-dev` on ubuntu, or `brew install isa-l` on Mac. Otherwise you can compile it from source. Please be noted that `isa-l` is not compatible with gcc 4.8 or older versions. See https://github.com/intel/isa-l
 `autoconf`, `automake`, `libtools`, `nasm (>=2.11.01)` and `yasm (>=1.2.0)` are required to build isa-l.
 
 ### step 2: install libdeflate
-It's recommended that to install it using your package manager, for example `apt install libdeflate` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
+It's recommended that to install it using your package manager, for example `apt install libdeflate-dev` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
 
 ### Step 3: download and build fastplong
 ```shell
