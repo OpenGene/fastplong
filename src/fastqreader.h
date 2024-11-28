@@ -52,7 +52,6 @@ public:
 public:
 	static bool isZipFastq(string filename);
 	static bool isFastq(string filename);
-	static bool test();
 
 private:
 	void init();

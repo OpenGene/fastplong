@@ -29,8 +29,6 @@ public:
     void addSeq(string seq);
     string getDominantPath(bool& reachedLeaf);
 
-    static bool test();
-
 private:
     Options* mOptions;
     NucleotideNode* mRoot;

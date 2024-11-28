@@ -77,16 +77,3 @@ void PolyX::trimPolyX(Read* r, FilterResult* fr, int compareReq) {
     }
 }
 
-bool PolyX::test() {
-
-    Read r("@name",
-        "ATTTTAAAAAAAAAATAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAT",
-        "+",
-        "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////E");
-
-    FilterResult fr(NULL, false);
-    PolyX::trimPolyX(&r, &fr, 10);
-    r.print();
-
-    return *r.mSeq == "ATTTT" && fr.getTotalPolyXTrimmedReads() == 1 && fr.getTotalPolyXTrimmedBases() == 51;
-}

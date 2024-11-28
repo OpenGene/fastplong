@@ -17,7 +17,6 @@ public:
     int passFilter(Read* r);
     bool passLowComplexityFilter(Read* r);
     Read* trimAndCut(Read* r, int front, int tail, int& frontTrimmed);
-    static bool test();
 
 private:
     bool match(vector<string>& list, string target, int threshold);

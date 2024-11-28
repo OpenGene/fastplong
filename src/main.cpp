@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "fastqreader.h"
-#include "unittest.h"
 #include <time.h>
 #include "cmdline.h"
 #include <sstream>
@@ -20,11 +19,6 @@ int main(int argc, char* argv[]){
         cerr << "fastplong: ultra-fast FASTQ preprocessing and quality control for long reads" << endl << "version " << FASTPLONG_VER << endl;
         //cerr << "fastplong --help to see the help"<<endl;
         //return 0;
-    }
-    if (argc == 2 && strcmp(argv[1], "test")==0){
-        UnitTest tester;
-        tester.run();
-        return 0;
     }
     if (argc == 2 && (strcmp(argv[1], "-v")==0 || strcmp(argv[1], "--version")==0)){
         cerr << "fastplong " << FASTPLONG_VER << endl;

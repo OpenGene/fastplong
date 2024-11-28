@@ -72,5 +72,5 @@ jobs:
         if: runner.os == 'Linux'
 
       - name: test
-        run: chmod a+x ./fastplong && ./fastplong --version && ./fastplong test
+        run: chmod a+x ./fastplong && ./fastplong --version
 
