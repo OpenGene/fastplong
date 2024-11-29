@@ -21,13 +21,12 @@ public:
     string extendKeyToAdapter(int key, unsigned int* counts, unsigned long* positionAcc, int keylen, bool isRNA = false, bool leftFirst = true);
     int getTopKey(unsigned int* counts, int keylen);
 
-    static bool test();
     static string matchKnownAdapter(string seq);
-private:
-    Options* mOptions;
     string int2seq(unsigned int val, int seqlen, bool isRNA = false);
     int seq2int(string* seq, int pos, int seqlen, int lastVal = -1);
     int seq2int(string& seq, int pos, int seqlen, int lastVal = -1);
+private:
+    Options* mOptions;
     string getAdapterWithSeed(int seed, Read** loadedReads, long records, int keylen);
 };
 

@@ -41,9 +41,6 @@ public:
         return mAllContigs;
     }
 
-    static bool test();
-
-
 public:
     string mCurrentSequence;
     string mCurrentID ;

@@ -19,7 +19,6 @@ public:
 
     Sequence operator~();
 
-    static bool test();
     static string reverseComplement(string* origin);
 
 public:

@@ -21,7 +21,7 @@ jobs:
         id: cpu-cores
 
       - name: install build dependencies (Ubuntu)
-        run: sudo apt update && sudo apt install -y build-essential nasm
+        run: sudo apt update && sudo apt install -y build-essential nasm libgtest-dev
         if: runner.os == 'Linux'
 
       - name: install build dependencies (MacOS)
@@ -65,6 +65,10 @@ jobs:
 
       - name: make fastp static (Ubuntu)
         run: bash -c 'make -j $(nproc) static'
+        if: runner.os == 'Linux'
+
+      - name: make test (Ubuntu)
+        run: bash -c 'make -j $(nproc) test-static'
         if: runner.os == 'Linux'
 
       - name: test
