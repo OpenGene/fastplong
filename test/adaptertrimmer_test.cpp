@@ -7,14 +7,14 @@ TEST(AdapterTrimmer, trimBySequenceStart) {
         "+",
         "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////EEEEEEEEE///EEEEEEEEEEEEEEEEEEEEE");
     string adapter = "GCGCATACTTTTCCACGGGGATACTACTG";
-    int trimmed = AdapterTrimmer::trimBySequenceStart(&r, NULL, adapter);
+    int trimmed = AdapterTrimmer::trimBySequenceStart(&r, NULL, adapter, 0.3, 0);
     EXPECT_EQ(*r.mSeq, "GGTGTTACCGTGGGAATGAATCCTTTTAACCTTAGCAATACGTAAAGGTGCT");
 
     Read r2("@name",
         "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAAGCGCATACTTTTCCACGGGGA",
         "+",
         "///EEEEEEEEEEEEEEEEEEEEEEEEEE////EEEEEEEEEEEEE////E////EEEEEEEEET");
-    trimmed = AdapterTrimmer::trimBySequenceEnd(&r2, NULL, adapter);
+    trimmed = AdapterTrimmer::trimBySequenceEnd(&r2, NULL, adapter, 0.3, 0);
     EXPECT_EQ(*r2.mSeq, "TTTTAACCCCCCCCCCCCCCCCCCCCCCCCCCCCAATTTTAAAA");
 
     /*Read read("@name",
