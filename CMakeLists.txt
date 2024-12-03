@@ -90,6 +90,7 @@ target_link_libraries(
     -lpthread
     -lisal
 )
+set_property(TARGET fastplong_lib PROPERTY CXX_STANDARD 23)
 
 # benchmark target
 add_executable(fastplong_benchmarks)
