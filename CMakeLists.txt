@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.21)
 project(fastplong VERSION 0.2.1)
 
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
-find_package(fmt CONFIG REQUIRED)
 find_package(hwy CONFIG REQUIRED)
 find_package(benchmark CONFIG REQUIRED)
 find_package(libdeflate CONFIG REQUIRED)
@@ -20,22 +19,53 @@ endif()
 
 set(
     FASTPLONG_SOURCES
+    src/adaptertrimmer.cpp
+    src/adaptertrimmer.h
+    src/cmdline.h
     src/common.h
+    src/editdistance.cpp
+    src/editdistance.h
+    src/evaluator.cpp
+    src/evaluator.h
     src/fastareader.cpp
     src/fastareader.h
-    src/main.cpp
+    src/fastqreader.cpp
+    src/fastqreader.h
+    src/filter.cpp
+    src/filter.h
+    src/filterresult.cpp
+    src/filterresult.h
+    src/jsonreporter.cpp
+    src/jsonreporter.h
+    src/htmlreporter.cpp
+    src/htmlreporter.h
+    src/knownadapters.h
+    src/nucleotidetree.cpp
+    src/nucleotidetree.h
     src/options.h
     src/options.cpp
+    src/polyx.h
+    src/polyx.cpp
+    src/processor.h
+    src/processor.cpp
     src/read.cpp
     src/read.h
     src/readpool.cpp
     src/readpool.h
+    src/seprocessor.cpp
+    src/seprocessor.h
     src/sequence.cpp
     src/sequence.h
     src/singleproducersingleconsumerlist.h
+    src/stats.cpp
+    src/stats.h
+    src/threadconfig.cpp
+    src/threadconfig.h
     src/util.h
     src/writer.cpp
     src/writer.h
+    src/writerthread.cpp
+    src/writerthread.h
 )
 
 set(
@@ -57,13 +87,15 @@ target_link_libraries(
     fastplong_lib PUBLIC
     hwy::hwy
     $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+    -lpthread
+    -lisal
 )
 
 # benchmark target
 add_executable(fastplong_benchmarks)
 target_sources(
     fastplong_benchmarks PRIVATE
-    benchmarks/bench.cpp
+    benchmarks/sequence_benchmark.cpp
     src/read.cpp
     src/sequence.cpp
 )
@@ -80,18 +112,17 @@ target_link_libraries(
     fastplong PRIVATE
     fastplong_lib
 )
-target_link_options(
-    fastplong
-    PRIVATE
-    -lpthread
-)
-set_property(TARGET main PROPERTY CXX_STANDARD 23)
+set_property(TARGET fastplong PROPERTY CXX_STANDARD 23)
 # tests target
-add_executable(fastplong_tests ${FASTPLONG_TEST_SOURCES})
-set_property(TARGET tests PROPERTY CXX_STANDARD 23)
-target_link_libraries(
-    fastplong PRIVATE
-    fastplong_lib
-)
 enable_testing()
-add_test(fastplong_tests)
+find_package(GTest CONFIG REQUIRED)
+add_executable(fastplong_tests ${FASTPLONG_TEST_SOURCES})
+set_property(TARGET fastplong_tests PROPERTY CXX_STANDARD 23)
+target_link_libraries(
+    fastplong_tests PRIVATE
+    fastplong_lib
+    GTest::gtest GTest::gtest_main
+    -lpthread
+    -lisal
+)
+add_test(fastplong_tests fastplong_tests)
