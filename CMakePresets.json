@@ -1,0 +1,65 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-multi-vcpkg",
+      "displayName": "Ninja Multi-Config",
+      "description": "Configure with vcpkg toolchain and generate Ninja project files for all configurations",
+      "binaryDir": "${sourceDir}/builds/${presetName}",
+      "generator": "Ninja Multi-Config",
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-vcpkg-debug",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Debug)",
+      "description": "Build with Ninja/vcpkg (Debug)",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-vcpkg-release",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Release)",
+      "description": "Build with Ninja/vcpkg (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-vcpkg",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build",
+      "description": "Build with Ninja/vcpkg"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-ninja-vcpkg",
+      "configurePreset": "ninja-multi-vcpkg",
+      "hidden": true
+    },
+    {
+      "name": "test-debug",
+      "description": "Test (Debug)",
+      "displayName": "Test (Debug)",
+      "configuration": "Debug",
+      "inherits": [
+        "test-ninja-vcpkg"
+      ]
+    },
+    {
+      "name": "test-release",
+      "description": "Test (Release)",
+      "displayName": "Test (Release)",
+      "configuration": "Release",
+      "inherits": [
+        "test-ninja-vcpkg"
+      ]
+    }
+  ]
+}

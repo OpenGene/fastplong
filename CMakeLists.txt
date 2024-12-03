@@ -1,0 +1,97 @@
+# CMakeLists.txt
+cmake_minimum_required(VERSION 3.21)
+project(fastplong VERSION 0.2.1)
+
+# Find dependencies provided by vcpkg (via vcpkg.cmake)
+find_package(fmt CONFIG REQUIRED)
+find_package(hwy CONFIG REQUIRED)
+find_package(benchmark CONFIG REQUIRED)
+find_package(libdeflate CONFIG REQUIRED)
+
+# compiler flags
+## HWY_AVX2 which is 256
+# SET(GCC_COVERAGE_COMPILE_FLAGS "-march=haswell -maes")
+## HWY_AVX3 which is 512
+# SET(GCC_COVERAGE_COMPILE_FLAGS "-march=sapphirerapids")
+# add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+if (MSVC)
+    add_compile_options(/arch:AVX2 /Gv)
+endif()
+
+set(
+    FASTPLONG_SOURCES
+    src/common.h
+    src/fastareader.cpp
+    src/fastareader.h
+    src/main.cpp
+    src/options.h
+    src/options.cpp
+    src/read.cpp
+    src/read.h
+    src/readpool.cpp
+    src/readpool.h
+    src/sequence.cpp
+    src/sequence.h
+    src/singleproducersingleconsumerlist.h
+    src/util.h
+    src/writer.cpp
+    src/writer.h
+)
+
+set(
+    FASTPLONG_TEST_SOURCES
+    test/adaptertrimmer_test.cpp
+    test/fastareader_test.cpp
+    test/filter_test.cpp
+    test/nucleotidetree_test.cpp
+    test/read_test.cpp
+    test/evaluator_test.cpp
+    test/fastqreader_test.cpp
+    test/globals.cpp
+    test/polyx_test.cpp
+    test/sequence_test.cpp
+)
+
+add_library(fastplong_lib STATIC ${FASTPLONG_SOURCES})
+target_link_libraries(
+    fastplong_lib PUBLIC
+    hwy::hwy
+    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+)
+
+# benchmark target
+add_executable(fastplong_benchmarks)
+target_sources(
+    fastplong_benchmarks PRIVATE
+    benchmarks/bench.cpp
+    src/read.cpp
+    src/sequence.cpp
+)
+target_link_libraries(
+    fastplong_benchmarks PRIVATE
+    hwy::hwy benchmark::benchmark benchmark::benchmark_main
+    fastplong_lib
+)
+set_property(TARGET fastplong_benchmarks PROPERTY CXX_STANDARD 23)
+
+# main target
+add_executable(fastplong src/main.cpp)
+target_link_libraries(
+    fastplong PRIVATE
+    fastplong_lib
+)
+target_link_options(
+    fastplong
+    PRIVATE
+    -lpthread
+)
+set_property(TARGET main PROPERTY CXX_STANDARD 23)
+# tests target
+add_executable(fastplong_tests ${FASTPLONG_TEST_SOURCES})
+set_property(TARGET tests PROPERTY CXX_STANDARD 23)
+target_link_libraries(
+    fastplong PRIVATE
+    fastplong_lib
+)
+enable_testing()
+add_test(fastplong_tests)
