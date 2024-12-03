@@ -81,6 +81,10 @@ set(
     test/polyx_test.cpp
     test/sequence_test.cpp
 )
+link_directories(
+    /usr/local/lib
+    /opt/homebrew/lib
+)
 
 add_library(fastplong_lib STATIC ${FASTPLONG_SOURCES})
 target_link_libraries(
