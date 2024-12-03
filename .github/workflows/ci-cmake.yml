@@ -24,14 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - os: ubuntu-24.04
-            triplet: x64-linux
-          - os: macos-12
-            triplet: x64-osx
-          - os: macos-14
-            triplet: arm64-osx
+        os: [ubuntu-24.04, macos-12, macos-14]
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
       # Not using "VCPKG_ROOT" because a variable with the same name is defined in the VS's
