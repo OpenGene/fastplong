@@ -84,6 +84,9 @@ jobs:
         run: |
           brew install isa-l
           brew link isa-l
+          ls /usr/local/lib
+          ls /opt/homebrew/lib
+          find /opt/homebrew/lib -type d
         if: runner.os == 'macOS'
       # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
       # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
