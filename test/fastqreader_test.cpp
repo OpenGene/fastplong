@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "fastqreader.h"
+#include "../src/fastqreader.h"
 
 TEST(fastqreader, test) {
 	/*FastqReader reader1("testdata/R1.fq");

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "read.h"
+#include "../src/read.h"
 
 TEST(ReadTests, lastIndex) {
   Read r(new string("@NS500713:64:HFKJJBGXY:1:11101:20469:1097 1:N:0:TATAGCCT+GGTCCCGA"),

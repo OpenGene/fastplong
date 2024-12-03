@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "fastareader.h"
+#include "../src/fastareader.h"
 
 TEST(fastareader, test) {
     /*FastaReader reader("testdata/tinyref.fa");

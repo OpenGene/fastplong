@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "adaptertrimmer.h"
+#include "../src/adaptertrimmer.h"
 
 TEST(AdapterTrimmer, trimBySequenceStart) {
     Read r("@name",

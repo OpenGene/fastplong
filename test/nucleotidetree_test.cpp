@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "nucleotidetree.h"
+#include "../src/nucleotidetree.h"
 
 
 TEST(NucleotideTree, getDominantPath) {

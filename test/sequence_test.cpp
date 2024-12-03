@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "sequence.h"
+#include "../src/sequence.h"
 
 TEST(SequenceTests, reverse) {
   Sequence s(new string("AAAATTTTCCCCGGGG"));
