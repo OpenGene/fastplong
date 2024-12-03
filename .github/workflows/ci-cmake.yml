@@ -81,7 +81,9 @@ jobs:
         run: sudo apt update && sudo apt install -y libisal-dev
         if: runner.os == 'Linux'
       - name: install build dependencies (MacOS)
-        run: brew install isa-l
+        run: |
+          brew install isa-l
+          brew link isa-l
         if: runner.os == 'macOS'
       # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
       # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
