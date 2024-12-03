@@ -84,6 +84,9 @@ jobs:
       # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
       - uses: ilammy/msvc-dev-cmd@v1
 
+      - name: install build dependencies (Ubuntu)
+        run: sudo apt update && sudo apt install -y libisal-dev
+        if: runner.os == 'Linux'
       # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
       # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
       # in the CMakePresets.json file.
