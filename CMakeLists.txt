@@ -98,6 +98,7 @@ target_sources(
     fastplong_benchmarks PRIVATE
     benchmarks/sequence_benchmark.cpp
     src/read.cpp
+    test/globals.cpp
     src/sequence.cpp
 )
 target_link_libraries(
