@@ -100,9 +100,12 @@ jobs:
 
       - name: run benchmarks
         run: |
-          ./builds/ninja-multi-vcpkg/Release/bench
+          ./builds/ninja-multi-vcpkg/Release/fastplong_benchmarks
 
-      # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
+      - name: run tests
         run: |
-          ctest --preset test-release
+          ./builds/ninja-multi-vcpkg/Release/fastplong_tests
+      # Test the whole project with CTest, again Release configuration only.
+      # - name: Test (Release configuration)
+      #   run: |
+      #     ctest --preset test-release
