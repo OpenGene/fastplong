@@ -2,6 +2,7 @@
 #include <hwy/highway.h>
 #include <hwy/contrib/algo/transform-inl.h>
 #include <hwy/aligned_allocator.h>
+
 namespace hn = hwy::HWY_NAMESPACE;
 
 Sequence::Sequence(){
@@ -25,28 +26,38 @@ int Sequence::length(){
 }
 
 string Sequence::reverseComplement(string* origin) {
+
     auto length = origin->length();
-    const auto sequence = reinterpret_cast<const uint8_t*>(&origin[0]);
-    auto output = new uint8_t[length];
+    const hn::ScalableTag<uint8_t> d;
+    const auto sequence = reinterpret_cast<const uint8_t*>(origin->c_str());
     const auto transform = [](const auto d, auto output, const auto sequence) HWY_ATTR
     {
         const auto a = hn::Set(d, 'A');
         const auto t = hn::Set(d, 'T');
         const auto c = hn::Set(d, 'C');
         const auto g = hn::Set(d, 'G');
-        output = hn::IfThenElse(hn::Eq(sequence, a), t, output);
+        const auto n = hn::Set(d, 'N');
+        output = hn::IfThenElse(hn::Eq(sequence, a), t, n);
         output = hn::IfThenElse(hn::Eq(sequence, t), a, output);
-        output = hn::IfThenElse(hn::Eq(sequence, c), g, output);
         output = hn::IfThenElse(hn::Eq(sequence, g), c, output);
+        output = hn::IfThenElse(hn::Eq(sequence, c), g, output);
         return output;
     };
-
-    const hn::ScalableTag<uint8_t> d;
-    Transform1(d, output, length, sequence, transform);
-
-    auto retVal = reinterpret_cast<char *>(output);
-    std::string reversed(retVal, length);
-    return reversed;
+    if (length <= 1000000) {
+        uint8_t output[length];
+        Transform1(d, output, length, sequence, transform);
+        auto retVal = reinterpret_cast<char *>(output);
+        std::string reversed(retVal, length);
+        std::reverse(reversed.begin(), reversed.end());
+        return reversed;
+    } else {
+        const auto allocated = hwy::AllocateAligned<uint8_t>(length);
+        Transform1(d, allocated.get(), length, sequence, transform);
+        auto retVal = reinterpret_cast<char *>(allocated.get());
+        std::string reversed(retVal, length);
+        std::reverse(reversed.begin(), reversed.end());
+        return reversed;
+    }
 }
 
 Sequence Sequence::reverseComplement() {

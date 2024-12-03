@@ -23,7 +23,7 @@ TEST(ReadTests, ReadPair) {
 
 	ReadPair pair(left, right);
 	Read* merged = pair.fastMerge();
-  EXPECT_NE(merged, nullptr);
+ 	EXPECT_NE(merged, nullptr);
 
 	EXPECT_EQ(*(merged->mSeq), "TTTTTTCTCTTGGACTCTAACACTGTTTTTTCTTATGAAAACACAGGAGTGATGACTAGTTGAGTGCATTCTTATGAGACTCATAGTCATTCTATGATGTAGTTTTTT");
 }

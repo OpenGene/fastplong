@@ -1,11 +1,9 @@
 #include <benchmark/benchmark.h>
 #include "../src/sequence.h"
 
-static void BM_SequenceReverseSerial(benchmark::State& state) {
-  // Perform setup here
-  auto origin = new std::string("AAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
-  for (auto _ : state) {
-    // This code gets timed
+
+// serial implementation of reverseComplement to compare
+static string reverseComplementSerial(string* origin) {
     string str(origin->length(), 0);
     int len = origin->length();
     for (int c = 0; c < origin->length(); c++)
@@ -33,12 +31,20 @@ static void BM_SequenceReverseSerial(benchmark::State& state) {
         str[len - c - 1] = 'N';
       }
     }
-    str;
-  }
-  delete origin;
+    return str;
 }
 
-static void BM_SequenceReverseHwy(benchmark::State& state) {
+static void BM_SequenceReverseSerial(benchmark::State& state) {
+  // Perform setup here
+  auto input = new std::string("AAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+  for (auto _ : state) {
+    const auto output = reverseComplementSerial(input);
+    // This code gets timed
+  }
+  delete input;
+}
+
+static void BM_SequenceReverseSIMD(benchmark::State& state) {
   // Perform setup here
   auto input = new std::string("AAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
   for (auto _ : state) {
@@ -50,6 +56,6 @@ static void BM_SequenceReverseHwy(benchmark::State& state) {
 
 // Register the function as a benchmark
 BENCHMARK(BM_SequenceReverseSerial);
-BENCHMARK(BM_SequenceReverseHwy);
+BENCHMARK(BM_SequenceReverseSIMD);
 // Run the benchmark
 // BENCHMARK_MAIN();

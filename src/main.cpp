@@ -14,6 +14,8 @@ string command;
 mutex logmtx;
 
 int main(int argc, char* argv[]){
+    Sequence s(new string("AAAATTTTCCCCGGGG"));
+    Sequence rc = ~s;
     // display version info if no argument is given
     if(argc == 1) {
         cerr << "fastplong: ultra-fast FASTQ preprocessing and quality control for long reads" << endl << "version " << FASTPLONG_VER << endl;
@@ -47,7 +49,7 @@ int main(int argc, char* argv[]){
     // trimming
     cmd.add<int>("trim_front", 'f', "trimming how many bases in front for read, default is 0", false, 0);
     cmd.add<int>("trim_tail", 't', "trimming how many bases in tail for read, default is 0", false, 0);
-    
+
     // polyX tail trimming
     cmd.add("trim_poly_x", 'x', "enable polyX trimming in 3' ends.");
     cmd.add<int>("poly_x_min_len", 0, "the minimum length to detect polyX in the read tail. 10 by default.", false, 10);
@@ -91,7 +93,7 @@ int main(int argc, char* argv[]){
     cmd.add<int>("split", 0, "split output by limiting total split file number with this option (2~999), a sequential number prefix will be added to output name ( 0001.out.fq, 0002.out.fq...), disabled by default", false, 0);
     cmd.add<long>("split_by_lines", 0, "split output by limiting lines of each file with this option(>=1000), a sequential number prefix will be added to output name ( 0001.out.fq, 0002.out.fq...), disabled by default", false, 0);
     cmd.add<int>("split_prefix_digits", 0, "the digits for the sequential number padding (1~10), default is 4, so the filename will be padded as 0001.xxx, 0 to disable padding", false, 4);
-    
+
     cmd.parse_check(argc, argv);
 
     if(argc == 1) {
@@ -171,8 +173,8 @@ int main(int argc, char* argv[]){
 
     // raise a warning if cutting option is not enabled but -W/-M is enabled
     if(!opt.qualityCut.enabledFront && !opt.qualityCut.enabledTail) {
-        if(cmd.exist("cut_window_size") || cmd.exist("cut_mean_quality") 
-            || cmd.exist("cut_front_window_size") || cmd.exist("cut_front_mean_quality") 
+        if(cmd.exist("cut_window_size") || cmd.exist("cut_mean_quality")
+            || cmd.exist("cut_front_window_size") || cmd.exist("cut_front_mean_quality")
             || cmd.exist("cut_tail_window_size") || cmd.exist("cut_tail_mean_quality") )
             cerr << "WARNING: you specified the options for cutting by quality, but forgot to enable any of cut_front/cut_tail/cut_right. This will have no effect." << endl;
     }
@@ -273,7 +275,7 @@ int main(int argc, char* argv[]){
 
     Processor p(&opt);
     p.process();
-    
+
     time_t t2 = time(NULL);
 
     cerr << endl << "JSON report: " << opt.jsonFile << endl;
