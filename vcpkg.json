@@ -2,7 +2,6 @@
   "name": "main",
   "version-string": "latest",
   "dependencies": [
-    "boost-config",
     "libdeflate",
     {
       "name": "highway",
