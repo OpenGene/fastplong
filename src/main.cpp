@@ -14,8 +14,6 @@ string command;
 mutex logmtx;
 
 int main(int argc, char* argv[]){
-    Sequence s(new string("AAAATTTTCCCCGGGG"));
-    Sequence rc = ~s;
     // display version info if no argument is given
     if(argc == 1) {
         cerr << "fastplong: ultra-fast FASTQ preprocessing and quality control for long reads" << endl << "version " << FASTPLONG_VER << endl;

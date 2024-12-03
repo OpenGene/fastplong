@@ -2,6 +2,7 @@
 #include <hwy/highway.h>
 #include <hwy/contrib/algo/transform-inl.h>
 #include <hwy/aligned_allocator.h>
+#include "util.h"
 
 namespace hn = hwy::HWY_NAMESPACE;
 
@@ -45,17 +46,15 @@ string Sequence::reverseComplement(string* origin) {
     };
     if (length <= 1000000) {
         uint8_t output[length];
-        Transform1(d, output, length, sequence, transform);
+        Transform1Reversed(d, output, length, sequence, transform);
         auto retVal = reinterpret_cast<char *>(output);
         std::string reversed(retVal, length);
-        std::reverse(reversed.begin(), reversed.end());
         return reversed;
     } else {
         const auto allocated = hwy::AllocateAligned<uint8_t>(length);
-        Transform1(d, allocated.get(), length, sequence, transform);
+        Transform1Reversed(d, allocated.get(), length, sequence, transform);
         auto retVal = reinterpret_cast<char *>(allocated.get());
         std::string reversed(retVal, length);
-        std::reverse(reversed.begin(), reversed.end());
         return reversed;
     }
 }

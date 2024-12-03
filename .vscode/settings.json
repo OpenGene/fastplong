@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "*.frm": "vb",
+        "*.ctl": "vb",
+        "*.form": "json",
+        "bitset": "cpp",
+        "condition_variable": "cpp",
+        "cwchar": "cpp",
+        "vector": "cpp",
+        "exception": "cpp",
+        "fstream": "cpp",
+        "functional": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "mutex": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "format": "cpp",
+        "iostream": "cpp"
+    }
+}

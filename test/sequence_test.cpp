@@ -2,14 +2,21 @@
 #include "../src/sequence.h"
 #include <algorithm>
 
-TEST(SequenceTests, reverse) {
+TEST(SequenceTests, reversecomplmeent) {
   Sequence s(new string("AAAATTTTCCCCGGGG"));
   Sequence rc = ~s;
   EXPECT_EQ(*s.mStr, "AAAATTTTCCCCGGGG");
   EXPECT_EQ(*rc.mStr, "CCCCGGGGAAAATTTT");
 }
 
-TEST(SequenceTests, reverselarge) {
+TEST(SequenceTests, reversecomplement_nonpadded) {
+  Sequence s(new string("AAAATTTTCCCCGGGGCG"));
+  Sequence rc = ~s;
+  EXPECT_EQ(*s.mStr, "AAAATTTTCCCCGGGGCG");
+  EXPECT_EQ(*rc.mStr, "CGCCCCGGGGAAAATTTT");
+}
+
+TEST(SequenceTests, reversecomplement_large) {
   auto largeSequence = new char[10000000];
   auto largeString = new string(largeSequence, 10000000);
 
