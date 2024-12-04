@@ -13,6 +13,7 @@ find_package(libdeflate CONFIG REQUIRED)
 ## HWY_AVX3 which is 512
 # SET(GCC_COVERAGE_COMPILE_FLAGS "-march=sapphirerapids")
 # add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+# add_compile_options(-march=haswell -maes)
 if (MSVC)
     add_compile_options(/arch:AVX2 /Gv)
 endif()
@@ -56,6 +57,7 @@ set(
     src/seprocessor.h
     src/sequence.cpp
     src/sequence.h
+    src/simdutil.h
     src/singleproducersingleconsumerlist.h
     src/stats.cpp
     src/stats.h

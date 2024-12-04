@@ -10,9 +10,7 @@
 #include <time.h>
 #include <mutex>
 #include <regex>
-#include <hwy/highway.h>
 #include <iostream>
-
 
 using namespace std;
 
@@ -284,32 +282,5 @@ inline void loginfo(const string s){
     logmtx.unlock();
 }
 
-template <class D, class Func, typename T = hwy::HWY_NAMESPACE::TFromD<D>>
-void Transform1Reversed(D d, T* HWY_RESTRICT inout, size_t count,
-                const T* HWY_RESTRICT in1, const Func& func) {
-  const size_t N = hwy::HWY_NAMESPACE::Lanes(d);
-
-  size_t idx = 0;
-  if (count >= N) {
-    for (; idx <= count - N; idx += N) {
-      const auto v = hwy::HWY_NAMESPACE::LoadU(d, inout + idx);
-      const auto v1 = hwy::HWY_NAMESPACE::LoadU(d, in1 + idx);
-
-    //   hwy::HWY_NAMESPACE::StoreU(func(d, v, v1), d, inout + count - N - idx);
-      hwy::HWY_NAMESPACE::StoreU(hwy::HWY_NAMESPACE::Reverse(d, func(d, v, v1)), d, inout + count - N - idx);
-    }
-  }
-
-  // `count` was a multiple of the vector length `N`: already done.
-  if (HWY_UNLIKELY(idx == count)) return;
-
-  const size_t remaining = count - idx;
-  HWY_DASSERT(0 != remaining && remaining < N);
-  const auto v = hwy::HWY_NAMESPACE::LoadN(d, inout + idx, remaining);
-  const auto v1 = hwy::HWY_NAMESPACE::LoadN(d, in1 + idx, remaining);
-  hwy::HWY_NAMESPACE::StoreN(hwy::HWY_NAMESPACE::Reverse(d, func(d, v, v1)) , d, inout, remaining);
-//   hwy::HWY_NAMESPACE::StoreN(func(d, v, v1), d, inout, remaining);
-//   std::reverse(inout, inout + remaining);
-}
 
 #endif /* UTIL_H */
