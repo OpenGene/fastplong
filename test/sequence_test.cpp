@@ -17,16 +17,12 @@ TEST(SequenceTests, reversecomplement_nonpadded) {
 }
 
 TEST(SequenceTests, reversecomplement_large) {
-  auto largeSequence = new char[10000000];
-  auto largeString = new string(largeSequence, 10000000);
+  auto largeString = new string(10000000, 'A');
 
-  std::fill(largeString->begin(), largeString->end(), 'A');
   Sequence s(largeString);
   Sequence rc = ~s;
 
-  auto largeResult = new char[10000000];
-  auto largeResultString = new string(largeResult, 10000000);
-  std::fill(largeResultString->begin(), largeResultString->end(), 'T');
+  auto largeResultString = new string(10000000, 'T');
   EXPECT_EQ(*s.mStr, *largeString);
   EXPECT_EQ(*rc.mStr, *largeResultString);
 }
