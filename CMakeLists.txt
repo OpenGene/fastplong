@@ -7,13 +7,11 @@ find_package(hwy CONFIG REQUIRED)
 find_package(benchmark CONFIG REQUIRED)
 find_package(libdeflate CONFIG REQUIRED)
 
-# compiler flags
-## HWY_AVX2 which is 256
-# SET(GCC_COVERAGE_COMPILE_FLAGS "-march=haswell -maes")
-## HWY_AVX3 which is 512
-# SET(GCC_COVERAGE_COMPILE_FLAGS "-march=sapphirerapids")
-# add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
-# add_compile_options(-march=haswell -maes)
+if (CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "x86_64")
+    add_compile_options(-march=haswell -maes)
+    ## HWY_AVX3 which is 512
+    # SET(GCC_COVERAGE_COMPILE_FLAGS "-march=sapphirerapids")
+endif()
 if (MSVC)
     add_compile_options(/arch:AVX2 /Gv)
 endif()
@@ -134,3 +132,18 @@ target_link_libraries(
     -lisal
 )
 add_test(fastplong_tests fastplong_tests)
+function(print_all_variables)
+  message(STATUS "CMake Variables:")
+  get_cmake_property(_variableNames VARIABLES)
+  list(SORT _variableNames)
+  foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+  message(STATUS "arch=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
+  message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR}")
+endfunction()
+
+
+print_all_variables()
+
+

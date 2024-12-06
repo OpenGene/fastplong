@@ -13,6 +13,10 @@ name: ci-cmake
 on:
   push:
   workflow_dispatch:
+  pull_request:
+    branches:
+    - v11
+    - main
 
 jobs:
   job:
