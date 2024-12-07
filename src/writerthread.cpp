@@ -1,6 +1,7 @@
 #include "writerthread.h"
 #include "util.h"
 #include <memory.h>
+#include <thread>
 
 WriterThread::WriterThread(Options* opt, string filename){
     mOptions = opt;
@@ -20,7 +21,7 @@ WriterThread::~WriterThread() {
     cleanup();
 }
 
-bool WriterThread::isCompleted() 
+bool WriterThread::isCompleted()
 {
     return mInputCompleted && (mBufferLength==0);
 }
@@ -36,7 +37,7 @@ bool WriterThread::setInputCompleted() {
 void WriterThread::output(){
     SingleProducerSingleConsumerList<string*>* list =  mBufferLists[mWorkingBufferList];
     if(!list->canBeConsumed()) {
-        usleep(100);
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
     } else {
         string* str = list->consume();
         mWriter1->write(str->data(), str->length());
