@@ -217,8 +217,6 @@ bool FastqReader::eof() {
 }
 
 void FastqReader::getLine(string* line){
-	int copied = 0;
-
 	int start = mBufUsedLen;
 	int end = start;
 

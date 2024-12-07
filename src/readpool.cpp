@@ -1,7 +1,6 @@
 #include "readpool.h"
 #include "util.h"
 #include <memory.h>
-#include <unistd.h>
 #include "common.h"
 
 ReadPool::ReadPool(Options* opt){

@@ -1,7 +1,6 @@
 #include "seprocessor.h"
 #include "fastqreader.h"
 #include <iostream>
-#include <unistd.h>
 #include <functional>
 #include <thread>
 #include <memory.h>

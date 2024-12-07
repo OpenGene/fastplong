@@ -1,7 +1,6 @@
 #include "writerthread.h"
 #include "util.h"
 #include <memory.h>
-#include <unistd.h>
 
 WriterThread::WriterThread(Options* opt, string filename){
     mOptions = opt;
