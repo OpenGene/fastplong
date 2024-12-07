@@ -1,6 +1,7 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.21)
 project(fastplong VERSION 0.2.1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
 find_package(hwy CONFIG REQUIRED)
@@ -132,18 +133,4 @@ target_link_libraries(
     -lisal
 )
 add_test(fastplong_tests fastplong_tests)
-function(print_all_variables)
-  message(STATUS "CMake Variables:")
-  get_cmake_property(_variableNames VARIABLES)
-  list(SORT _variableNames)
-  foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-  endforeach()
-  message(STATUS "arch=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
-  message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR}")
-endfunction()
-
-
-print_all_variables()
-
 

@@ -50,7 +50,12 @@ string Sequence::reverseComplement(string *HWY_RESTRICT origin) {
         return output;
     };
     if (length <= 1000000) {
+#if _MSC_VER
+        auto outputPtr = std::make_unique<uint8_t>(length);
+        uint8_t* output = outputPtr.get();
+#else
         uint8_t output[length];
+#endif
         hn::Transform1Reversed(d, output, length, sequence, transform);
         auto retVal = reinterpret_cast<char *>(output);
         std::string reversed(retVal, length);
