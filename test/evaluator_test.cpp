@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "evaluator.h"
+#include "../src/evaluator.h"
 
 TEST(EvaluatorTests, int2Seq) {
     Evaluator eval(NULL);

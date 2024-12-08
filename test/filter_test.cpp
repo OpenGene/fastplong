@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "filter.h"
+#include "../src/filter.h"
 
 TEST(FilerTest, trimAndCut) {
     Read r("@name",

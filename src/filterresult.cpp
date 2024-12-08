@@ -27,7 +27,7 @@ void FilterResult::addFilterResult(int result, int readNum) {
 
 FilterResult* FilterResult::merge(vector<FilterResult*>& list) {
     if(list.size() == 0)
-        return NULL;
+        return nullptr;
     FilterResult* result = new FilterResult(list[0]->mOptions);
 
     long* target = result->getFilterReadStats();

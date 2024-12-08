@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "polyx.h"
+#include "../src/polyx.h"
 
 TEST(PolyX, trimPolyX) {
     Read r("@name",

@@ -48,10 +48,10 @@ public:
     inline LockFreeListItem(T val) {
         value = val;
         nextItemReady = false;
-        nextItem = NULL;
+        nextItem = nullptr;
     }
     inline LockFreeListItem() {
-        nextItem = NULL;
+        nextItem = nullptr;
         nextItemReady = false;
     }
     T value;
@@ -63,8 +63,8 @@ template<typename T>
 class SingleProducerSingleConsumerList {
 public:
     inline SingleProducerSingleConsumerList() {
-        head = NULL;
-        tail = NULL;
+        head = nullptr;
+        tail = nullptr;
         producerFinished = false;
         consumerFinished = false;
         produced = 0;
