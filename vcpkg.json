@@ -11,6 +11,9 @@
     },
     "benchmark",
     "gtest",
-    "isal"
+    {
+      "name": "isal",
+      "platform": "windows"
+    }
   ]
 }

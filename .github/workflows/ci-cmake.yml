@@ -105,6 +105,7 @@ jobs:
       - name: run benchmarks
         run: |
           ./builds/ninja-multi-vcpkg/Release/fastplong_benchmarks
+        if: runner.os != 'Windows'
 
       - name: run tests
         run: |

@@ -6,8 +6,24 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
 find_package(hwy CONFIG REQUIRED)
 find_package(benchmark CONFIG REQUIRED)
-find_package(unofficial-isal CONFIG REQUIRED)
 find_package(libdeflate CONFIG REQUIRED)
+
+if (MSVC)
+find_package(unofficial-isal CONFIG REQUIRED)
+set(
+    FASTPLONG_LIBS
+    hwy::hwy
+    unofficial::isal::isal
+    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+)
+else()
+set(
+    FASTPLONG_LIBS
+    hwy::hwy
+    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+    -lisal
+)
+endif()
 
 if (CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "x86_64")
     add_compile_options(-march=haswell -maes)
@@ -72,9 +88,7 @@ if (NOT MSVC)
     )
     target_link_libraries(
         fastplong_benchmarks PRIVATE
-        hwy::hwy
-        unofficial::isal::isal
-        $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+        ${FASTPLONG_LIBS}
         benchmark::benchmark
         benchmark::benchmark_main
     )
@@ -83,9 +97,7 @@ endif()
 add_executable(fastplong src/main.cpp ${FASTPLONG_SOURCES})
 target_link_libraries(
     fastplong PUBLIC
-    hwy::hwy
-    unofficial::isal::isal
-    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+    ${FASTPLONG_LIBS}
 )
 # tests target
 enable_testing()
@@ -94,9 +106,7 @@ add_executable(fastplong_tests ${FASTPLONG_SOURCES} ${FASTPLONG_TEST_SOURCES})
 set_property(TARGET fastplong_tests PROPERTY CXX_STANDARD 23)
 target_link_libraries(
     fastplong_tests PRIVATE
-    hwy::hwy
-    unofficial::isal::isal
-    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+    ${FASTPLONG_LIBS}
     GTest::gtest
     GTest::gtest_main
     -lpthread
