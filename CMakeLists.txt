@@ -1,6 +1,7 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.21)
 project(fastplong VERSION 0.2.1)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
@@ -110,7 +111,6 @@ target_link_libraries(
 enable_testing()
 find_package(GTest CONFIG REQUIRED)
 add_executable(fastplong_tests ${FASTPLONG_SOURCES} ${FASTPLONG_TEST_SOURCES})
-set_property(TARGET fastplong_tests PROPERTY CXX_STANDARD 23)
 target_link_libraries(
     fastplong_tests PRIVATE
     ${FASTPLONG_LIBS}
