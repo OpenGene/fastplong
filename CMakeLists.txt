@@ -72,10 +72,17 @@ set(
     test/polyx_test.cpp
     test/sequence_test.cpp
 )
+include_directories(
+    /usr/local/include
+    # arm64 mac install location
+    /opt/homebrew/include
+)
 link_directories(
     /usr/local/lib
+    # arm64 mac install location
     /opt/homebrew/lib
 )
+
 
 if (NOT MSVC)
     # benchmark target
