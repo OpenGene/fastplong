@@ -22,8 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#if _MSC_VER
+#if __has_include(<corecrt.h>)
 #include <corecrt.h>
+#endif
+#if __has_include(<xmemory>)
+#include <xmemory>
 #endif
 #include "writer.h"
 #include "util.h"

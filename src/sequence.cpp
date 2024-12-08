@@ -49,9 +49,13 @@ string Sequence::reverseComplement(string *HWY_RESTRICT origin) {
         output = hn::IfThenElse(hn::Or(hn::Eq(sequence, G), hn::Eq(sequence, g)), C, output);
         return output;
     };
-    if (length <= 1000000) {
 #if _MSC_VER
-        auto outputPtr = std::make_unique<uint8_t>(length);
+    if (true) {
+#else
+    if (length <= 1000000) {
+#endif
+#if _MSC_VER
+        auto outputPtr = std::make_unique<uint8_t[]>(length);
         uint8_t* output = outputPtr.get();
 #else
         uint8_t output[length];
@@ -60,13 +64,16 @@ string Sequence::reverseComplement(string *HWY_RESTRICT origin) {
         auto retVal = reinterpret_cast<char *>(output);
         std::string reversed(retVal, length);
         return reversed;
-    } else {
+    }
+#ifndef _MSC_VER
+    else {
         const auto allocated = hwy::AllocateAligned<uint8_t>(length);
         hn::Transform1Reversed(d, allocated.get(), length, sequence, transform);
         auto retVal = reinterpret_cast<char *>(allocated.get());
         std::string reversed(retVal, length);
         return reversed;
     }
+#endif
 }
 
 Sequence Sequence::reverseComplement() {
