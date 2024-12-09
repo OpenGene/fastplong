@@ -1,0 +1,19 @@
+{
+  "name": "main",
+  "version-string": "latest",
+  "dependencies": [
+    "libdeflate",
+    {
+      "name": "highway",
+      "features": [
+        "contrib"
+      ]
+    },
+    "benchmark",
+    "gtest",
+    {
+      "name": "isal",
+      "platform": "windows"
+    }
+  ]
+}

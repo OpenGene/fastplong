@@ -10,6 +10,7 @@
 #include <time.h>
 #include <mutex>
 #include <regex>
+#include <iostream>
 
 using namespace std;
 
@@ -275,10 +276,11 @@ inline void error_exit(const string& msg) {
 extern mutex logmtx;
 inline void loginfo(const string s){
     logmtx.lock();
-    time_t tt = time(NULL);
+    time_t tt = time(nullptr);
     tm* t= localtime(&tt);
     fprintf(stderr, "[%02d:%02d:%02d] %s \n", t->tm_hour, t->tm_min, t->tm_sec, s.c_str());
     logmtx.unlock();
 }
+
 
 #endif /* UTIL_H */

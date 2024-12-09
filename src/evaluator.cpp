@@ -153,7 +153,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     if(records < 100) {
         for(int r=0; r<records; r++) {
             delete loadedReads[r];
-            loadedReads[r] = NULL;
+            loadedReads[r] = nullptr;
         }
         delete[] loadedReads;
         return ;
@@ -258,7 +258,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     delete[] positionAcc;
     for(int r=0; r<records; r++) {
         delete loadedReads[r];
-        loadedReads[r] = NULL;
+        loadedReads[r] = nullptr;
     }
     delete[] loadedReads;
 
