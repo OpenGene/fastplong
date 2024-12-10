@@ -1,8 +1,8 @@
 [![install with conda](
 https://anaconda.org/bioconda/fastplong/badges/version.svg)](https://anaconda.org/bioconda/fastplong)
 # fastplong
-Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.).   
-If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use [fastp](https://github.com/OpenGene/fastp)  
+Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.).
+If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use [fastp](https://github.com/OpenGene/fastp)
 
 - [simple usage](#simple-usage)
 - [examples of report](#examples-of-report)
@@ -37,7 +37,7 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
 ```
 fastplong -i in.fq -o out.fq
 ```
-Both input and output can be gzip compressed. By default, the HTML report is saved to `fastplong.html` (can be specified with `-h` option), and the JSON report is saved to `fastplong.json` (can be specified with `-j` option). 
+Both input and output can be gzip compressed. By default, the HTML report is saved to `fastplong.html` (can be specified with `-h` option), and the JSON report is saved to `fastplong.json` (can be specified with `-j` option).
 
 # examples of report
 `fastplong` creates reports in both HTML and JSON format.
@@ -64,14 +64,21 @@ mv fastplong.0.2.2 fastplong
 chmod a+x ./fastplong
 ```
 ## or compile from source
-`fastplong` depends on `libdeflate` and `isa-l` for fast decompression and compression of zipped data.
+`fastplong` depends on `ninja-build` and `cmake` for building, and `isa-l` for fast decompression and compression of zipped data.
 
-### Step 1: install isa-l
+### Step 1: install build tools
+To build `fastplong` you will need some build tools.
+```bash
+sudo apt update && sudo apt install cmake make g++ gdb ninja-build curl zip unzip tar pkg-config
+```
+On Mac OSX
+```bash
+brew install ninja cmake make gdb zip unzip pkg-config
+```
+
+### Step 2: install isa-l
 It's recommended that to install it using your package manager, for example `apt install libisal-dev` on ubuntu, or `brew install isa-l` on Mac. Otherwise you can compile it from source. Please be noted that `isa-l` is not compatible with gcc 4.8 or older versions. See https://github.com/intel/isa-l
 `autoconf`, `automake`, `libtools`, `nasm (>=2.11.01)` and `yasm (>=1.2.0)` are required to build isa-l.
-
-### step 2: install libdeflate
-It's recommended that to install it using your package manager, for example `apt install libdeflate-dev` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
 
 ### Step 3: download and build fastplong
 ```shell
@@ -186,7 +193,7 @@ Specify `--split_by_lines` to limit the lines of each file. The last files may h
 usage: fastplong -i <in> -o <out> [options...]
 fastplong: ultra-fast FASTQ preprocessing and quality control for long reads
 version 0.0.1
-usage: ./fastplong [options] ... 
+usage: ./fastplong [options] ...
 options:
   -i, --in                           read input file name (string [=])
   -o, --out                          read output file name (string [=])

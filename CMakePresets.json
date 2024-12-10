@@ -29,12 +29,6 @@
       "displayName": "Build (Release)",
       "description": "Build with Ninja/vcpkg (Release)",
       "configuration": "Release"
-    },
-    {
-      "name": "ninja-vcpkg",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build",
-      "description": "Build with Ninja/vcpkg"
     }
   ],
   "testPresets": [
