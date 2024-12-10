@@ -24,7 +24,7 @@ build: builds/ninja-multi-vcpkg/build.ninja
 clean:
 	cmake --build --preset ninja-vcpkg-release --target clean
 
-install: builds/ninja-multi-vcpkg/Release/fastplong
+install: build
 	cmake --install builds/ninja-multi-vcpkg
 	@echo "Installed."
 
