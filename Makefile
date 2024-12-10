@@ -18,10 +18,15 @@ else
   endef
 endif
 
-all: build
-
 build: builds/ninja-multi-vcpkg/build.ninja
 	cmake --build --preset ninja-vcpkg-release
+
+clean:
+	cmake --build --preset ninja-vcpkg-release --target clean
+
+install: builds/ninja-multi-vcpkg/Release/fastplong
+	cmake --install builds/ninja-multi-vcpkg
+	@echo "Installed."
 
 test: build
 	./builds/ninja-multi-vcpkg/Release/fastplong_tests

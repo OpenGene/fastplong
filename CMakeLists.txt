@@ -126,3 +126,9 @@ target_link_libraries(
     GTest::gtest_main
 )
 add_test(fastplong_tests fastplong_tests)
+
+install(TARGETS fastplong
+    CONFIGURATIONS Release
+    RUNTIME
+    DESTINATION bin
+)
