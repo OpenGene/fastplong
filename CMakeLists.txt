@@ -10,20 +10,21 @@ find_package(benchmark CONFIG REQUIRED)
 find_package(libdeflate CONFIG REQUIRED)
 
 if (MSVC)
-find_package(unofficial-isal CONFIG REQUIRED)
-set(
-    FASTPLONG_LIBS
-    hwy::hwy
-    unofficial::isal::isal
-    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
-)
+    find_package(unofficial-isal CONFIG REQUIRED)
+    set(
+        FASTPLONG_LIBS
+        hwy::hwy
+        unofficial::isal::isal
+        $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+    )
 else()
-set(
-    FASTPLONG_LIBS
-    hwy::hwy
-    $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
-    -lisal
-)
+    set(
+        FASTPLONG_LIBS
+        hwy::hwy
+        $<IF:$<TARGET_EXISTS:libdeflate::libdeflate_shared>,libdeflate::libdeflate_shared,libdeflate::libdeflate_static>
+        -lisal
+        -lpthread
+    )
 endif()
 
 if (CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "x86_64")
@@ -74,48 +75,54 @@ set(
     test/sequence_test.cpp
 )
 include_directories(
+    # intel mac install location
     /usr/local/include
     # arm64 mac install location
     /opt/homebrew/include
 )
 link_directories(
+    # intel mac install location
     /usr/local/lib
     # arm64 mac install location
     /opt/homebrew/lib
 )
 
+add_library(fastplong_core ${FASTPLONG_SOURCES})
+target_link_libraries(
+    fastplong_core PRIVATE
+    ${FASTPLONG_LIBS}
+)
 
 if (NOT MSVC)
     # benchmark target
-    add_executable(fastplong_benchmarks)
-    target_sources(
-        fastplong_benchmarks PRIVATE
+    add_executable(fastplong_benchmarks
         benchmarks/sequence_benchmark.cpp
         test/globals.cpp
-        ${FASTPLONG_SOURCES}
     )
     target_link_libraries(
         fastplong_benchmarks PRIVATE
         ${FASTPLONG_LIBS}
+        fastplong_core
         benchmark::benchmark
         benchmark::benchmark_main
     )
 endif()
 # main target
-add_executable(fastplong src/main.cpp ${FASTPLONG_SOURCES})
+add_executable(fastplong src/main.cpp)
 target_link_libraries(
     fastplong PUBLIC
+    fastplong_core
     ${FASTPLONG_LIBS}
 )
 # tests target
 enable_testing()
 find_package(GTest CONFIG REQUIRED)
-add_executable(fastplong_tests ${FASTPLONG_SOURCES} ${FASTPLONG_TEST_SOURCES})
+add_executable(fastplong_tests ${FASTPLONG_TEST_SOURCES})
 target_link_libraries(
     fastplong_tests PRIVATE
     ${FASTPLONG_LIBS}
+    fastplong_core
     GTest::gtest
     GTest::gtest_main
-    -lpthread
 )
 add_test(fastplong_tests fastplong_tests)
