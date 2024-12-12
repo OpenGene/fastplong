@@ -18,14 +18,15 @@ else
   endef
 endif
 
-CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
-# Extra CMake flags which extend the default set
-CMAKE_EXTRA_FLAGS := -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-
-all: build
-
-build: builds/.ran-cmake
+build: builds/ninja-multi-vcpkg/build.ninja
 	cmake --build --preset ninja-vcpkg-release
+
+clean:
+	cmake --build --preset ninja-vcpkg-release --target clean
+
+install: build
+	cmake --install builds/ninja-multi-vcpkg
+	@echo "Installed."
 
 test: build
 	./builds/ninja-multi-vcpkg/Release/fastplong_tests
@@ -38,13 +39,12 @@ format:
 	find src -name "*.h" | xargs clang-format -i
 
 lint: builds/.ran-cmake
-	python3 scripts/run-clang-tidy.py -p builds/ninja-multi-vcpkg
+	run-clang-tidy -p builds/ninja-multi-vcpkg
 
 vcpkg/.vcpkg-root:
 	git submodule update --init --recursive
 
-builds/.ran-cmake: vcpkg/.vcpkg-root
-	$(CMAKE) -B builds/ninja-multi-vcpkg -G "Ninja Multi-Config" $(CMAKE_FLAGS) $(CMAKE_EXTRA_FLAGS) -S .
-	$(TOUCH) $@
+builds/ninja-multi-vcpkg/build.ninja: vcpkg/.vcpkg-root CMakeLists.txt CMakePresets.json
+	$(CMAKE) --preset "ninja-multi-vcpkg"
 
 .PHONY: lint build test format benchmark
