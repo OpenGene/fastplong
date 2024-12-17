@@ -117,7 +117,12 @@ target_link_libraries(
 # tests target
 enable_testing()
 find_package(GTest CONFIG REQUIRED)
+configure_file(test/config.h.in ${CMAKE_BINARY_DIR}/include/config.h)
 add_executable(fastplong_tests ${FASTPLONG_TEST_SOURCES})
+target_include_directories(
+    fastplong_tests
+    PRIVATE ${CMAKE_BINARY_DIR}/include
+)
 target_link_libraries(
     fastplong_tests PRIVATE
     ${FASTPLONG_LIBS}
