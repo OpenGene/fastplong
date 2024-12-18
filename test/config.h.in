@@ -1,0 +1,7 @@
+// this file is necessary to help resolve the correct path when loading test data files.
+// When tests using the IDE and CLI the working directory can be different.
+// This substitute builds the absolute path to eliminate the need to depend on the working directory.
+#pragma once
+
+#define FP_TESTDATA_R1 "${CMAKE_SOURCE_DIR}/testdata/R1.fq"
+#define FP_TESTDATA_R2 "${CMAKE_SOURCE_DIR}/testdata/R2.fq"
