@@ -73,6 +73,7 @@ set(
     test/globals.cpp
     test/polyx_test.cpp
     test/sequence_test.cpp
+    test/stats_test.cpp
 )
 include_directories(
     # intel mac install location
