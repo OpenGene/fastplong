@@ -1,7 +1,7 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.21)
 project(fastplong VERSION 0.2.1)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
@@ -29,6 +29,7 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "x86_64")
     add_compile_options(-march=haswell -maes)
+    # add_link_options(-pg)
     ## HWY_AVX3 which is 512
     # SET(GCC_COVERAGE_COMPILE_FLAGS "-march=sapphirerapids")
 endif()
