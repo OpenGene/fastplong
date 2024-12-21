@@ -73,7 +73,14 @@ It's recommended that to install it using your package manager, for example `apt
 ### step 2: install libdeflate
 It's recommended that to install it using your package manager, for example `apt install libdeflate-dev` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
 
-### Step 3: download and build fastplong
+### step 3: install libhwy
+fastplong uses Google highway to apply SIMD acceleration. You can install it via conda:
+```
+conda install conda-forge::libhwy
+```
+Otherwise you can compile it from source. See: https://github.com/google/highway
+
+### step 4: download and build fastplong
 ```shell
 # get source (you can also use browser to download from master or releases)
 git clone https://github.com/OpenGene/fastplong.git
@@ -81,6 +88,9 @@ git clone https://github.com/OpenGene/fastplong.git
 # build
 cd fastplong
 make -j
+
+# test
+make test
 
 # Install
 sudo make install
