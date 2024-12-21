@@ -10,9 +10,6 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
   - [install with Bioconda](#install-with-bioconda)
   - [download the latest prebuilt binary for Linux users](#download-the-latest-prebuilt-binary-for-linux-users)
   - [or compile from source](#or-compile-from-source)
-    - [Step 1: install isa-l](#step-1-install-isa-l)
-    - [step 2: install libdeflate](#step-2-install-libdeflate)
-    - [Step 3: download and build fastplong](#step-3-download-and-build-fastplong)
 - [input and output](#input-and-output)
   - [output to STDOUT](#output-to-stdout)
   - [input from STDIN](#input-from-stdin)
@@ -64,23 +61,15 @@ mv fastplong.0.2.2 fastplong
 chmod a+x ./fastplong
 ```
 ## or compile from source
-`fastplong` depends on `libdeflate` and `isa-l` for fast decompression and compression of zipped data.
-
-### Step 1: install isa-l
-It's recommended that to install it using your package manager, for example `apt install libisal-dev` on ubuntu, or `brew install isa-l` on Mac. Otherwise you can compile it from source. Please be noted that `isa-l` is not compatible with gcc 4.8 or older versions. See https://github.com/intel/isa-l
-`autoconf`, `automake`, `libtools`, `nasm (>=2.11.01)` and `yasm (>=1.2.0)` are required to build isa-l.
-
-### step 2: install libdeflate
-It's recommended that to install it using your package manager, for example `apt install libdeflate-dev` on ubuntu, or `brew install libdeflate` on Mac. Otherwise you can compile it from source. See https://github.com/ebiggers/libdeflate
-
-### step 3: install libhwy
-fastplong uses Google highway to apply SIMD acceleration. You can install it via conda:
+`fastplong` depends on `libdeflate` and `isa-l` for fast decompression and compression of zipped data, and depends on `libhwy` for SIMD acceleration. It's recommended to install all of them via Anaconda:
 ```
+conda install conda-forge::libdeflate
+conda install conda-forge::isa-l
 conda install conda-forge::libhwy
 ```
-Otherwise you can compile it from source. See: https://github.com/google/highway
+You can also try to install them with other package management systems like `apt/yum` on Linux, or `brew` on MacOS. Otherwise you can compile them from source (https://github.com/intel/isa-l, https://github.com/ebiggers/libdeflate, and https://github.com/google/highway)
 
-### step 4: download and build fastplong
+### download and build fastplong
 ```shell
 # get source (you can also use browser to download from master or releases)
 git clone https://github.com/OpenGene/fastplong.git
