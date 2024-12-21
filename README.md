@@ -58,9 +58,9 @@ This binary was compiled on CentOS, and tested on CentOS/Ubuntu
 wget http://opengene.org/fastplong/fastplong
 chmod a+x ./fastplong
 
-# or download specified version, i.e. fastplong v0.2.0
-wget http://opengene.org/fastplong/fastplong.0.2.0
-mv fastplong.0.2.0 fastplong
+# or download specified version, i.e. fastplong v0.2.2
+wget http://opengene.org/fastplong/fastplong.0.2.2
+mv fastplong.0.2.2 fastplong
 chmod a+x ./fastplong
 ```
 ## or compile from source

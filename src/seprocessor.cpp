@@ -227,6 +227,8 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             } else {
                 outReads.push_back(r1);
             }
+        } else if(r1 != NULL) {
+            outReads.push_back(r1);
         }
 
         bool passed = false;

@@ -610,6 +610,7 @@ void Stats::reporHtmlMedianQualHist(ofstream& ofs, string filteringType) {
 
     int offset = max(0, minVal-1); 
     int total = min(127-33, maxVal - minVal + 2);
+    total = max(0, total);
     long *x = new long[total];
     for(int i=0; i<total; i++) {
         x[i] = i + offset;
