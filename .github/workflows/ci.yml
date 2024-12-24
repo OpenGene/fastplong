@@ -21,11 +21,11 @@ jobs:
         id: cpu-cores
 
       - name: install build dependencies (Ubuntu)
-        run: sudo apt update && sudo apt install -y build-essential nasm libgtest-dev
+        run: sudo apt update && sudo apt install -y build-essential nasm libgtest-dev libhwy-dev
         if: runner.os == 'Linux'
 
       - name: install build dependencies (MacOS)
-        run: brew install automake autoconf coreutils nasm
+        run: brew install automake autoconf coreutils nasm highway
         if: runner.os == 'macOS'
 
       - name: get deflate
