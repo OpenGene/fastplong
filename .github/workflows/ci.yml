@@ -17,39 +17,19 @@ jobs:
       - name: checkout scm
         uses: actions/checkout@v3
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
-        id: cpu-cores
-
       - name: install build dependencies (Ubuntu)
-        run: sudo apt update && sudo apt install -y build-essential nasm libgtest-dev libhwy-dev libisal-dev
+        run: sudo apt update && sudo apt install -y build-essential libgtest-dev libhwy-dev libisal-dev libdeflate-dev
         if: runner.os == 'Linux'
 
       - name: install build dependencies (MacOS)
-        run: brew install highway googletest isa-l
+        run: brew install highway googletest isa-l libdeflate
         if: runner.os == 'macOS'
 
-      - name: get deflate
-        uses: actions/checkout@v3
-        with:
-          repository: ebiggers/libdeflate
-          path: src/libs/deflate
-          ref: v1.22
-
-      - name: build deflate
-        run: |
-          cd src/libs/deflate
-          cmake -B build
-          cmake --build build -j ${{ steps.cpu-cores.outputs.count }}
-          sudo cmake --install build
-          cd -
-
       - name: make fastplong
-        run: bash -c 'make -j $(nproc)'
+        run: make -j
 
       - name: make test
-        run: bash -c 'make -j $(nproc) test'
-        if: runner.os == 'Linux'
+        run: make -j test
 
       - name: test
         run: chmod a+x ./fastplong && ./fastplong --version
