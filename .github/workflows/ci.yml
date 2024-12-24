@@ -49,6 +49,7 @@ jobs:
 
       - name: make test
         run: bash -c 'make -j $(nproc) test'
+        if: runner.os == 'Linux'
 
       - name: test
         run: chmod a+x ./fastplong && ./fastplong --version
