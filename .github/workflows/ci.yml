@@ -26,7 +26,7 @@ jobs:
         if: runner.os == 'Linux'
 
       - name: install build dependencies (MacOS)
-        run: brew install automake autoconf coreutils nasm highway googletest
+        run: brew install highway googletest isa-l
         if: runner.os == 'macOS'
 
       - name: get deflate
