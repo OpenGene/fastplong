@@ -5,8 +5,8 @@ DIR_TEST := ./test
 
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
-INCLUDE_DIRS ?=
-LIBRARY_DIRS ?=
+INCLUDE_DIRS ?= /opt/homebrew/include
+LIBRARY_DIRS ?= /opt/homebrew/lib
 
 SRC := $(wildcard ${DIR_SRC}/*.cpp)
 TEST := $(wildcard ${DIR_TEST}/*.cpp)

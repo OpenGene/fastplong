@@ -1,6 +1,7 @@
 #include "adaptertrimmer.h"
 #include "editdistance.h"
 #include <math.h>
+#include "hwy/highway.h"
 
 AdapterTrimmer::AdapterTrimmer(){
 }
@@ -24,12 +25,12 @@ bool AdapterTrimmer::findMiddleAdapters(Read* r, string& startAdater, string& en
         len = end - start;
         return true;
     } if(startAdaterPos >=0){
-        int end = min(r->length(), startAdaterPos + (int)startAdater.length() +trimmingExtension); 
+        int end = min(r->length(), startAdaterPos + (int)startAdater.length() +trimmingExtension);
         start = max(0, startAdaterPos-trimmingExtension);
         len = end - start;
         return true;
     } if(endAdapterPos >=0){
-        int end = min(r->length(), endAdapterPos + (int)endAdapter.length() +trimmingExtension); 
+        int end = min(r->length(), endAdapterPos + (int)endAdapter.length() +trimmingExtension);
         start = max(0, endAdapterPos-trimmingExtension);
         len = end - start;
         return true;
@@ -55,80 +56,113 @@ int AdapterTrimmer::trimByMultiSequences(Read* r, FilterResult* fr, vector<strin
     return trimmed;
 }
 
-int AdapterTrimmer::searchAdapter(string* read, string& adapter, double edMax, int searchStart, int searchLen, bool asLeftAsPossible, bool asRightAsPossible) {
+int AdapterTrimmer::searchAdapter(string *read, const string &adapter, double edMax, int searchStart, int searchLen, bool asLeftAsPossible, bool asRightAsPossible)
+{
+    namespace hn = hwy::HWY_NAMESPACE;
+    hn::ScalableTag<uint8_t> d8;
+    const size_t N = hn::Lanes(d8);
+
     int minMismatch = 99999; // initialized with a large mismatch
     int pos = -1;
     // for the best match
-    const char* adata = adapter.c_str();
-    const char* rdata = read->c_str();
+    const char *adata = adapter.c_str();
+    const char *rdata = read->c_str();
     int rlen = read->length();
     int alen = adapter.length();
 
     int threshold = round(edMax * alen);
 
     int searchEnd = rlen;
-    if(searchLen > 0) {
+    if (searchLen > 0)
+    {
         searchEnd = min(rlen, searchLen + searchStart);
     }
 
-    if(searchStart + alen > rlen )
+    if (searchStart + alen > rlen)
         return -1;
 
-    if(asLeftAsPossible) {
+    if (asLeftAsPossible)
+    {
         // go from left, and return immediatedly if find a mismatch < threshold
-        for(int p = searchStart; p < searchEnd - alen; p++) {
-            int mismatch = 0;
-            for(int i=0; i<alen; i++) {
-                if(rdata[p+i] != adata[i])
-                    mismatch++;
+        for (int p = searchStart; p < searchEnd - alen; p++)
+        {
+            size_t mismatch = 0;
+            for (size_t i = 0; i < alen; i += N)
+            {
+                const size_t lanesToLoad = min(alen - i, N);
+                const auto rdata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(rdata + i + p), lanesToLoad);
+                const auto adata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(adata + i), lanesToLoad);
+                const auto mismatch_mask = rdata_v != adata_v;
+                mismatch += hn::CountTrue(d8, mismatch_mask);
             }
-            if(mismatch <= threshold) {
+
+            if (mismatch <= threshold)
+            {
                 return p;
             }
-            if(mismatch <= minMismatch ) {
+            if (mismatch <= minMismatch)
+            {
                 minMismatch = mismatch;
                 pos = p;
             }
         }
-    } else if(asRightAsPossible && searchEnd > alen) {
+    }
+    else if (asRightAsPossible && searchEnd > alen)
+    {
         // go from right, and return immediatedly if find a mismatch <= threshold
-        for(int p = searchEnd - alen - 1 ; p >= searchStart ; p--) {
-            int mismatch = 0;
-            for(int i=0; i<alen; i++) {
-                if(rdata[p+i] != adata[i])
-                    mismatch++;
+        for (int p = searchEnd - alen; p >= searchStart; p--)
+        {
+            size_t mismatch = 0;
+            for (size_t i = 0; i < alen; i += N)
+            {
+                const size_t lanesToLoad = min(alen - i, N);
+                const auto rdata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(rdata + i + p), lanesToLoad);
+                const auto adata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(adata + i), lanesToLoad);
+                const auto mismatch_mask = rdata_v != adata_v;
+                mismatch += hn::CountTrue(d8, mismatch_mask);
             }
-            if(mismatch <= threshold) {
+            if (mismatch <= threshold)
+            {
                 return p;
             }
-            if(mismatch <= minMismatch ) {
+            if (mismatch <= minMismatch)
+            {
                 minMismatch = mismatch;
                 pos = p;
             }
         }
-    } else {
-        for(int p = searchStart; p < searchEnd - alen; p++) {
-            int mismatch = 0;
-            for(int i=0; i<alen; i++) {
-                if(rdata[p+i] != adata[i])
-                    mismatch++;
+    }
+    else
+    {
+        for (int p = searchStart; p < searchEnd - alen; p++)
+        {
+            size_t mismatch = 0;
+            for (size_t i = 0; i < alen; i += N)
+            {
+                const size_t lanesToLoad = min(alen - i, N);
+                const auto rdata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(rdata + i + p), lanesToLoad);
+                const auto adata_v = hn::LoadN(d8, reinterpret_cast<const uint8_t *>(adata + i), lanesToLoad);
+                const auto mismatch_mask = rdata_v != adata_v;
+                mismatch += hn::CountTrue(d8, mismatch_mask);
             }
-            if(mismatch < minMismatch ) {
+            if (mismatch < minMismatch)
+            {
                 minMismatch = mismatch;
                 pos = p;
             }
         }
     }
 
-    if(pos >= 0 ) {
-        int ed = edit_distance(rdata+pos, alen, adata, alen);
-        if(ed <= threshold)
+    if (pos >= 0)
+    {
+        int ed = edit_distance(rdata + pos, alen, adata, alen);
+        if (ed <= threshold)
             return pos;
         else
             return -1;
-    } else
+    }
+    else
         return -1;
-    
 }
 
 int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapterseq, double edMax, int trimmingExtension) {
@@ -151,7 +185,7 @@ int AdapterTrimmer::trimBySequenceStart(Read* r, FilterResult* fr, string& adapt
     if(mpos >= 0) {
         // extend to make a cleaner trimming
         mpos = min(mpos + trimmingExtension, rlen - alen);
-        if(fr) 
+        if(fr)
             fr->addAdapterTrimmed(adapterseq);
         r->trimFront(mpos + alen);
         //cout << "L " << pos << endl;
