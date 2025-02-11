@@ -107,7 +107,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
 
     FastqReader reader(filename);
     // stat up to 16K reads or 128M bases
-    const long READ_LIMIT = 16*1024;
+    const long READ_LIMIT = 64*1024;
     const long BASE_LIMIT = 8192 * READ_LIMIT;
     long records = 0;
     long bases = 0;
@@ -211,7 +211,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
         }
     }
 
-    // read start adapter
+    // read end adapter
     if(opt->adapter.sequenceEnd == "auto") {
         cerr << "Trying to detect adapter sequence at read end"<<endl;
         long total = 0;
