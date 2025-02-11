@@ -106,7 +106,7 @@ void Evaluator::evalAdapterAndReadNum(Options* opt, long& readNum) {
     string filename = mOptions->in;
 
     FastqReader reader(filename);
-    // stat up to 16K reads or 128M bases
+    // stat up to 64K reads or 512M bases
     const long READ_LIMIT = 64*1024;
     const long BASE_LIMIT = 8192 * READ_LIMIT;
     long records = 0;
