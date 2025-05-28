@@ -72,6 +72,13 @@ bool Options::validate() {
         check_file_valid(in);
     }
 
+    if(outputToSTDOUT) {
+        if(!out.empty()) {
+            cerr << "In STDOUT mode, ignore the output filename " << out << endl;
+            out = "";
+        }
+    }
+
     // if output to STDOUT, then...
     if(outputToSTDOUT) {
         if(split.enabled) {
