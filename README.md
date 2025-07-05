@@ -4,6 +4,8 @@ https://anaconda.org/bioconda/fastplong/badges/version.svg)](https://anaconda.or
 Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.).   
 If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), please use [fastp](https://github.com/OpenGene/fastp)  
 
+fastplong supports batch processing of multiple FASTQ files in a folder, see - [batch processing](#batch-processing)
+
 - [simple usage](#simple-usage)
 - [examples of report](#examples-of-report)
 - [get fastplong](#get-fastplong)
@@ -28,6 +30,7 @@ If you're searching for tools to preprocess short reads (Illumina, MGI, etc.), p
 - [output splitting](#output-splitting)
   - [splitting by limiting file number](#splitting-by-limiting-file-number)
   - [splitting by limiting the lines of each file](#splitting-by-limiting-the-lines-of-each-file)
+- [batch processing](#batch-processing)
 - [all options](#all-options)
 
 # simple usage
@@ -179,6 +182,25 @@ Specify `--split` to specify how many files you want to have. `fastplong` evalua
 ## splitting by limiting the lines of each file
 Specify `--split_by_lines` to limit the lines of each file. The last files may have smaller sizes since usually the input file cannot be perfectly divided. The actual file lines may be a little greater than the value specified by `--split_by_lines` since `fastplong` reads and writes data by blocks (a block = 1000 reads).
 
+# batch processing
+[parallel.py](https://github.com/OpenGene/fastplong/blob/master/parallel.py) is a script to preprocess all FASTQ files within a folder in parallel. It will automatically couple the paired-end FASTQ files.  
+
+This script will generate an `overall.html` to present an aggregate summary for all processed FASTQ files.  
+
+## example
+```shell
+python parallel.py -i /path/to/input/folder -o /path/to/output/folder -r /path/to/reports/folder -a '--cut_front --cut_tail'
+```
+which means to  
+```
+. process all the FASTQ data in /path/to/input/folder
+. using fastplong in PATH
+. the arguments --cut_front and --cut_tail will be passed to fastplong, to apply sliding window quality trimming from front and tail
+. output all clean data to /path/to/output/folder
+. output all HTML and JSON reports to /path/to/reports/folder
+```
+
+See `python parallel.py -h` for details.
 
 # all options
 ```shell
