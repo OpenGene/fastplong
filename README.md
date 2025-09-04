@@ -19,6 +19,7 @@ fastplong supports batch processing of multiple FASTQ files in a folder, see - [
   - [process only part of the data](#process-only-part-of-the-data)
   - [do not overwrite exiting files](#do-not-overwrite-exiting-files)
   - [split the output to multiple files for parallel processing](#split-the-output-to-multiple-files-for-parallel-processing)
+- [fastplong workflow](#fastplong-workflow)
 - [filtering](#filtering)
   - [quality filter](#quality-filter)
   - [length filter](#length-filter)
@@ -108,6 +109,9 @@ If you don't want to process all the data, you can specify `--reads_to_process` 
 You can enable the option `--dont_overwrite` to protect the existing files not to be overwritten by `fastplong`. In this case, `fastplong` will report an error and quit if it finds any of the output files (read, json report, html report) already exists before.
 ## split the output to multiple files for parallel processing
 See [output splitting](#output-splitting)
+
+# fastplong workflow
+![fastplong workflow](https://opengene.org/fastplong/fastplong.jpeg)
 
 # filtering
 Multiple filters have been implemented.
