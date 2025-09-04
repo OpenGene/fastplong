@@ -171,7 +171,7 @@ WARNING: This may result in significant data loss. If you want to keep more data
 `fastplong` can detect low quality regions and replace the bases in these regions with N base. Specify `-N` or `--mask` to enable this feature. You can adjust the sliding window size by `--mask_window_size`, and adjust the mean quality requirement by `mask_mean_quality`.  
 WARNING: This may cause many reads failed to pass the N base limit filter. If you want to keep more data, you can lower the mean quality requirement, improve the sliding window size or adjust the N base percent limit `--n_percent_limit`.  
 
-It's not suggested to enable `--break` and `--mask` together. But if there are enabled together, fastplong will break the reads first, and then mask the subreads.
+It's not suggested to enable both `--break` and `--mask` together. But if they are enabled together, fastplong will break the reads first, and then mask the subreads.
 
 # global trimming
 `fastplong` supports global trimming, which means trim all reads in the front or the tail. This function is useful since sometimes you want to drop some cycles of a sequencing run.
