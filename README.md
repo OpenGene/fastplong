@@ -111,7 +111,7 @@ You can enable the option `--dont_overwrite` to protect the existing files not t
 See [output splitting](#output-splitting)
 
 # fastplong workflow
-![fastplong workflow](https://opengene.org/fastplong/fastplong.jpeg)
+![fastplong workflow](https://opengene.org/fastplong/workflow.jpeg)
 
 # filtering
 Multiple filters have been implemented.
