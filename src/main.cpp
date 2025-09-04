@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
     // mask low quality regions with N
     cmd.add("mask", 'N', "mask the low quality regions with N, these regions are detected by sliding window with mean quality < mask_mean_quality.");
     cmd.add<int>("mask_window_size", 0, "the size of the sliding window to evaluate the mean quality for N masking(5~1000000), default: 50", false, 50);
-    cmd.add<int>("mask_mean_quality", 0, "the mean quality requirement for sliding window N masking (5~30), default: 10 (Q10)", false, 12);
+    cmd.add<int>("mask_mean_quality", 0, "the mean quality requirement for sliding window N masking (5~30), default: 10 (Q10)", false, 10);
 
     // break reads into high-quality fragments, and discard low-quality fragments
     cmd.add("break", 'b', "break the reads by discarding the low quality regions, these regions are detected by sliding window with mean quality < break_mean_quality.");
