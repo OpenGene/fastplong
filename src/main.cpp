@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
     cmd.add("trim_poly_x", 'x', "enable polyX trimming in 3' ends.");
     cmd.add<int>("poly_x_min_len", 0, "the minimum length to detect polyX in the read tail. 10 by default.", false, 10);
 
-    // cutting by quality
+    // cutting by quality at front or tail
     cmd.add("cut_front", '5', "move a sliding window from front (5') to tail, drop the bases in the window if its mean quality < threshold, stop otherwise.");
     cmd.add("cut_tail", '3', "move a sliding window from tail (3') to front, drop the bases in the window if its mean quality < threshold, stop otherwise.");
     cmd.add<int>("cut_window_size", 'W', "the window size option shared by cut_front, cut_tail or cut_sliding. Range: 1~1000, default: 4", false, 4);
@@ -62,6 +62,15 @@ int main(int argc, char* argv[]){
     cmd.add<int>("cut_tail_window_size", 0, "the window size option of cut_tail, default to cut_window_size if not specified", false, 4);
     cmd.add<int>("cut_tail_mean_quality", 0, "the mean quality requirement option for cut_tail, default to cut_mean_quality if not specified", false, 20);
 
+    // mask low quality regions with N
+    cmd.add("mask", 'N', "mask the low quality regions with N, these regions are detected by sliding window with mean quality < mask_mean_quality.");
+    cmd.add<int>("mask_window_size", 0, "the size of the sliding window to evaluate the mean quality for N masking(5~1000000), default: 50", false, 50);
+    cmd.add<int>("mask_mean_quality", 0, "the mean quality requirement for sliding window N masking (5~30), default: 10 (Q10)", false, 12);
+
+    // break reads into high-quality fragments, and discard low-quality fragments
+    cmd.add("break", 'b', "break the reads by discarding the low quality regions, these regions are detected by sliding window with mean quality < break_mean_quality.");
+    cmd.add<int>("break_window_size", 0, "the size of the sliding window to evaluate the mean quality for sliding window breaking(5~1000000), default: 100", false, 100);
+    cmd.add<int>("break_mean_quality", 0, "the mean quality requirement for sliding window breaking (5~30), default: 10 (Q10)", false, 10);
 
     // quality filtering
     cmd.add("disable_quality_filtering", 'Q', "quality filtering is enabled by default. If this option is specified, quality filtering is disabled");
@@ -192,6 +201,16 @@ int main(int argc, char* argv[]){
     // low complexity filter
     opt.complexityFilter.enabled = cmd.exist("low_complexity_filter");
     opt.complexityFilter.threshold = (min(100, max(0, cmd.get<int>("complexity_threshold")))) / 100.0;
+
+    // N masking by quality
+    opt.mask.enabled = cmd.exist("mask");
+    opt.mask.windowSize = cmd.get<int>("mask_window_size");
+    opt.mask.quality = cmd.get<int>("mask_mean_quality");
+
+    // break reads into high-quality fragments, and discard low-quality fragments
+    opt.breakOpt.enabled = cmd.exist("break");
+    opt.breakOpt.windowSize = cmd.get<int>("break_window_size");
+    opt.breakOpt.quality = cmd.get<int>("break_mean_quality");
 
     // threading
     opt.thread = cmd.get<int>("thread");

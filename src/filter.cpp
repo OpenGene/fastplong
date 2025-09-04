@@ -78,6 +78,53 @@ bool Filter::passLowComplexityFilter(Read* r) {
         return false;
 }
 
+vector<pair<int, int>> Filter::detectLowQualityRegions(Read* r, int windowSize, int quality) {
+    vector<pair<int, int>> results;
+    if(r == NULL || r->length() == 0 || windowSize <=0)
+        return results;
+
+    int l = r->length();
+    const char* qualstr = r->mQuality->c_str();
+
+    int start = 0;
+    while(start + windowSize <= l) {
+        int totalQual = 0;
+        // preparing rolling
+        for(int i=start; i<windowSize-1 && i<l; i++)
+            totalQual += qualstr[i];
+
+        int windowStart = -1;
+        // find the first window with mean quality < quality
+        for(int s=start; s+windowSize<l; s++) {
+            if(totalQual < (33 + quality) * windowSize) {
+                windowStart = s;
+                break;
+            }
+            // roll to the new base
+            totalQual += qualstr[s+windowSize];
+            totalQual -= qualstr[s];
+        }
+
+        if(windowStart == -1)
+            break;
+
+        //extend the window
+        int e;
+        for(e=windowStart; e+windowSize<l; e++) {
+            // roll to the new base
+            totalQual += qualstr[e+windowSize];
+            totalQual -= qualstr[e];
+            if(totalQual >= (33 + quality) * windowSize) {
+                break;
+            }
+        }
+        results.push_back(make_pair(windowStart, e+windowSize-1));
+        start = e + windowSize;
+    }
+
+    return results;
+}
+
 Read* Filter::trimAndCut(Read* r, int front, int tail, int& frontTrimmed) {
     frontTrimmed = 0;
     // return the same read for speed if no change needed

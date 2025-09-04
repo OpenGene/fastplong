@@ -17,6 +17,31 @@ using namespace std;
 #define UMI_LOC_PER_INDEX 5
 #define UMI_LOC_PER_READ 6
 
+class MaskOptions {
+public:
+    MaskOptions() {
+        enabled = false;
+        windowSize = 20;
+        quality = 15;
+    }
+public:
+    bool enabled;
+    int windowSize;
+    int quality;
+};
+
+class BreakOptions {
+public:
+    BreakOptions() {
+        enabled = false;
+        windowSize = 20;
+        quality = 15;
+    }
+public:
+    bool enabled;
+    int windowSize;
+    int quality;
+};
 
 class LowComplexityFilterOptions {
 public:
@@ -227,7 +252,10 @@ public:
     PolyXTrimmerOptions polyXTrim;
     // low complexity filtering
     LowComplexityFilterOptions complexityFilter;
-    // options for duplication profiling
+    // N masking by quality
+    MaskOptions mask;
+    // break reads into high-quality fragments, and discard low-quality fragments
+    BreakOptions breakOpt;
     // output debug information
     bool verbose;
     // the buffer size for writer

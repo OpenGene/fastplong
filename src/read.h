@@ -33,6 +33,8 @@ public:
     void trimFront(int len);
     bool fixMGI();
     vector<Read*> breakByGap(int start, int len);
+    void maskRegionWithN(int start, int len);
+    vector<Read*> breakByRegions(vector<pair<int, int>>& regions);
 
 private:
 

@@ -231,6 +231,36 @@ bool SingleEndProcessor::processSingleEnd(ReadPack* pack, ThreadConfig* config){
             outReads.push_back(r1);
         }
 
+        //break by low quality regions
+        if(mOptions->breakOpt.enabled && outReads.size() > 0) {
+            vector<Read*> tmpReads;
+            for(int i=0; i<outReads.size(); i++) {
+                Read* rr = outReads[i];
+                vector<pair<int, int>> regions = mFilter->detectLowQualityRegions(rr, mOptions->breakOpt.windowSize, mOptions->breakOpt.quality);
+                if(regions.size() > 0) {
+                    vector<Read*> brs = rr->breakByRegions(regions);
+                    for(int j=0; j<brs.size(); j++)
+                        tmpReads.push_back(brs[j]);
+                    // release the read if it's created by breaking gap
+                    if(rr != or1 && rr != r1)
+                        recycleToPool(tid, rr);
+                } else {
+                    tmpReads.push_back(rr);
+                }
+            }
+            outReads = tmpReads;
+        }
+        // mask by low quality regions
+        if(mOptions->mask.enabled && outReads.size() > 0) {
+            for(int i=0; i<outReads.size(); i++) {
+                Read* rr = outReads[i];
+                vector<pair<int, int>> regions = mFilter->detectLowQualityRegions(rr, mOptions->mask.windowSize, mOptions->mask.quality);
+                for(int j=0; j<regions.size(); j++) {
+                    rr->maskRegionWithN(regions[j].first, regions[j].second - regions[j].first + 1);
+                }
+            }
+        }
+
         bool passed = false;
         for(int i=0; i<outReads.size(); i++) {
 

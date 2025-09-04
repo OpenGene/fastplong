@@ -214,6 +214,53 @@ vector<Read*> Read::breakByGap(int start, int len) {
 	return out;
 }
 
+void Read::maskRegionWithN(int start, int len) {
+	if(start < 0 || len <= 0 || start >= length())
+		return;
+	if(start + len > length())
+		len = length() - start;
+	for(int i=start; i<start+len; i++) {
+		(*mSeq)[i] = 'N';
+	}
+}
+
+vector<Read*> Read::breakByRegions(vector<pair<int, int>>& regions) {
+	vector<Read*> out;
+	int lastEnd = -1;
+	for(int i=0; i<regions.size(); i++) {
+		int start = regions[i].first;
+		int end = regions[i].second;
+		if(start < 0)
+			start = 0;
+		if(end >= length())
+			end = length() - 1;
+		if(start > end || start >= length())
+			continue;
+		if(start > lastEnd + 1) {
+			int len = start - lastEnd - 1;
+			string* seq = new string(*mSeq, lastEnd + 1, len);
+			string* qual = new string(*mQuality, lastEnd + 1, len);
+			string* name = new string(*mName);
+			name->insert(1, "r" + to_string(i+1)+"-");
+			string* strand = new string(*mStrand);
+			Read* r = new Read(name, seq, strand, qual );
+			out.push_back(r);
+		}
+		lastEnd = end;
+	}
+	if(lastEnd < length() - 1) {
+		int len = length() - lastEnd - 1;
+		string* seq = new string(*mSeq, lastEnd + 1, len);
+		string* qual = new string(*mQuality, lastEnd + 1, len);
+		string* name = new string(*mName);
+		name->insert(1, "r"+to_string(regions.size()+1)+"-");
+		string* strand = new string(*mStrand);
+		Read* r = new Read(name, seq, strand, qual );
+		out.push_back(r);
+	}
+	return out;
+}
+
 ReadPair::ReadPair(Read* left, Read* right){
 	mLeft = left;
 	mRight = right;
