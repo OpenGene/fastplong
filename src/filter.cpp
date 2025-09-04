@@ -43,7 +43,7 @@ int Filter::passFilter(Read* r) {
             return FAIL_QUALITY;
         else if(mOptions->qualfilter.avgQualReq > 0 && (totalQual / rlen)<mOptions->qualfilter.avgQualReq)
             return FAIL_QUALITY;
-        else if(nBaseNum > mOptions->qualfilter.nBaseLimit )
+        else if(nBaseNum * 100 > rlen * mOptions->qualfilter.nBasePercentLimit )
             return FAIL_N_BASE;
     }
 

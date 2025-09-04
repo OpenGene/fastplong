@@ -139,7 +139,7 @@ bool Options::validate() {
     if(qualfilter.unqualifiedPercentLimit < 0 || qualfilter.unqualifiedPercentLimit > 100)
         error_exit("unqualified percent limit (--unqualified_percent_limit) should be 0 ~ 100, suggest 20 ~ 60");
 
-    if(qualfilter.nBaseLimit < 0)
+    if(qualfilter.nBasePercentLimit < 0)
         error_exit("N base limit (--n_base_limit) should be >0");
 
     if(lengthFilter.requiredLength < 0 )

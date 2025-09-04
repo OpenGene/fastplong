@@ -166,7 +166,7 @@ public:
         // '0' = Q15
         qualifiedQual = '0';
         unqualifiedPercentLimit = 40;
-        nBaseLimit = 5;
+        nBasePercentLimit = 10;
     }
 public:
     // quality filter enabled
@@ -176,7 +176,7 @@ public:
     // if low_qual_base_num > lowQualLimit, then discard this read
     int unqualifiedPercentLimit;
     // if n_base_number > nBaseLimit, then discard this read
-    int nBaseLimit;
+    int nBasePercentLimit;
     // if average qual score < avgQualReq, then discard this read
     int avgQualReq;
 };
