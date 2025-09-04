@@ -257,7 +257,7 @@ options:
   -n, --n_percent_limit              if one read's N base percentage is >n_percent_limit, then this read is discarded. Default 10 means 10% (int [=10])
   -m, --mean_qual                    if one read's mean_qual quality score <mean_qual, then this read is discarded. Default 0 means no requirement (int [=0])
   -L, --disable_length_filtering     length filtering is enabled by default. If this option is specified, length filtering is disabled
-  -l, --length_required              reads shorter than length_required will be discarded, default is 15. (int [=15])
+  -l, --length_required              reads shorter than length_required will be discarded, default is 20. (int [=20])
       --length_limit                 reads longer than length_limit will be discarded, default 0 means no limitation. (int [=0])
   -y, --low_complexity_filter        enable low complexity filter. The complexity is defined as the percentage of base that is different from its next base (base[i] != base[i+1]).
   -Y, --complexity_threshold         the threshold for low complexity filter (0~100). Default is 30, which means 30% complexity is required. (int [=30])
