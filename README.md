@@ -26,6 +26,8 @@ fastplong supports batch processing of multiple FASTQ files in a folder, see - [
   - [Other filter](#other-filter)
 - [adapters](#adapters)
 - [per read cutting by quality score](#per-read-cutting-by-quality-score)
+- [break read to subreads by discarding low quality regions](#break-read-to-subreads-by-discarding-low-quality-regions)
+- [mask low quality regions with N](#mask-low-quality-regions-with-n)
 - [global trimming](#global-trimming)
 - [output splitting](#output-splitting)
   - [splitting by limiting file number](#splitting-by-limiting-file-number)
@@ -160,8 +162,16 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 * `-5, --cut_front`             move a sliding window from front (5') to tail, drop the bases in the window if its mean quality is below cut_mean_quality, stop otherwise. Default is disabled. The leading N bases are also trimmed. Use `cut_front_window_size` to set the widnow size, and `cut_front_mean_quality` to set the mean quality threshold. If the window size is 1, this is similar as the Trimmomatic `LEADING` method.
 * `-3, --cut_tail`              move a sliding window from tail (3') to front, drop the bases in the window if its mean quality is below cut_mean_quality, stop otherwise. Default is disabled. The trailing N bases are also trimmed. Use `cut_tail_window_size` to set the widnow size, and `cut_tail_mean_quality` to set the mean quality threshold. If the window size is 1, this is similar as the Trimmomatic `TRAILING` method.
 
+# break read to subreads by discarding low quality regions
+`fastplong` can detect low quality regions by moving a sliding window through the read. Specify `-b` or `--break` to enable this feature. You can adjust the sliding window size by `--break_window_size`, and adjust the mean quality requirement by `break_mean_quality`.  
+The subreads will have names like `@r1-original-name`, `@r2-original-name`..., and each subread will be quality checked and filtered separately.  
+WARNING: This may result in significant data loss. If you want to keep more data, please lower the mean quality requirement or improve the sliding window size.
 
-If you don't set window size and mean quality threshold for these function respectively, `fastplong` will use the values from `-W, --cut_window_size` and `-M, --cut_mean_quality `
+# mask low quality regions with N
+`fastplong` can detect low quality regions and replace the bases in these regions with N base. Specify `-N` or `--mask` to enable this feature. You can adjust the sliding window size by `--mask_window_size`, and adjust the mean quality requirement by `mask_mean_quality`.  
+WARNING: This may cause many reads failed to pass the N base limit filter. If you want to keep more data, you can lower the mean quality requirement, improve the sliding window size or adjust the N base percent limit `--n_percent_limit`.  
+
+It's not suggested to enable `--break` and `--mask` together. But if there are enabled together, fastplong will break the reads first, and then mask the subreads.
 
 # global trimming
 `fastplong` supports global trimming, which means trim all reads in the front or the tail. This function is useful since sometimes you want to drop some cycles of a sequencing run.
@@ -206,7 +216,6 @@ See `python parallel.py -h` for details.
 ```shell
 usage: fastplong -i <in> -o <out> [options...]
 fastplong: ultra-fast FASTQ preprocessing and quality control for long reads
-version 0.0.1
 usage: ./fastplong [options] ... 
 options:
   -i, --in                           read input file name (string [=])
@@ -236,10 +245,16 @@ options:
       --cut_front_mean_quality       the mean quality requirement option for cut_front, default to cut_mean_quality if not specified (int [=20])
       --cut_tail_window_size         the window size option of cut_tail, default to cut_window_size if not specified (int [=4])
       --cut_tail_mean_quality        the mean quality requirement option for cut_tail, default to cut_mean_quality if not specified (int [=20])
+  -N, --mask                         mask the low quality regions with N, these regions are detected by sliding window with mean quality < mask_mean_quality.
+      --mask_window_size             the size of the sliding window to evaluate the mean quality for N masking(5~1000000), default: 50 (int [=50])
+      --mask_mean_quality            the mean quality requirement for sliding window N masking (5~30), default: 10 (Q10) (int [=10])
+  -b, --break                        break the reads by discarding the low quality regions, these regions are detected by sliding window with mean quality < break_mean_quality.
+      --break_window_size            the size of the sliding window to evaluate the mean quality for sliding window breaking(5~1000000), default: 100 (int [=100])
+      --break_mean_quality           the mean quality requirement for sliding window breaking (5~30), default: 10 (Q10) (int [=10])
   -Q, --disable_quality_filtering    quality filtering is enabled by default. If this option is specified, quality filtering is disabled
   -q, --qualified_quality_phred      the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified. (int [=15])
   -u, --unqualified_percent_limit    how many percents of bases are allowed to be unqualified (0~100). Default 40 means 40% (int [=40])
-  -n, --n_base_limit                 if one read's number of N base is >n_base_limit, then this read is discarded. Default is 5 (int [=5])
+  -n, --n_percent_limit              if one read's N base percentage is >n_percent_limit, then this read is discarded. Default 10 means 10% (int [=10])
   -m, --mean_qual                    if one read's mean_qual quality score <mean_qual, then this read is discarded. Default 0 means no requirement (int [=0])
   -L, --disable_length_filtering     length filtering is enabled by default. If this option is specified, length filtering is disabled
   -l, --length_required              reads shorter than length_required will be discarded, default is 15. (int [=15])
