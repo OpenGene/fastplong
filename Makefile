@@ -21,7 +21,7 @@ TEST_TARGET := bin/fastplong_unittest
 CXX ?= g++
 CXXFLAGS := -std=c++14 -pthread -g -O3 -MP -MD -I${DIR_INC} -I${DIR_SRC} $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir)) ${CXXFLAGS}
 LIBS := -lisal -ldeflate -lpthread -lhwy
-STATIC_FLAGS := -static -Wl,--no-as-needed -pthread
+STATIC_FLAGS := -static -L. -Wl,--no-as-needed -pthread
 LD_FLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) $(LIBS) $(LD_FLAGS)
 STATIC_LD_FLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) $(STATIC_FLAGS) $(LIBS) $(STATIC_LD_FLAGS)
 
