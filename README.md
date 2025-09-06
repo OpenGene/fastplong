@@ -121,7 +121,7 @@ Quality filtering is enabled by default, but you can disable it by `-Q` or `disa
 `fastplong` supports filtering by limiting the N base number (`--n_base_limit`, disabled by default) and N base percentage (`-n, --n_percent_limit`, enabled by default). For example, to limit the N base no more than 100, and no more than 20%, you can use the command: 
 ```shell
 fastplong -i in.fq -o out.fq --n_base_limit 100 --n_percent_limit 20
-```  
+```
 
 To filter reads by its percentage of unqualified bases, two options should be provided:
 * `-q, --qualified_quality_phred`       the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified.
