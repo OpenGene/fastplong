@@ -116,7 +116,9 @@ See [output splitting](#output-splitting)
 # filtering
 Multiple filters have been implemented.
 ## quality filter
-Quality filtering is enabled by default, but you can disable it by `-Q` or `disable_quality_filtering`. Currently it supports filtering by limiting the N base number (`-n, --n_base_limit`),  and the percentage of unqualified bases.  
+Quality filtering is enabled by default, but you can disable it by `-Q` or `disable_quality_filtering`.  
+
+`fastplong` supports filtering by limiting the N base number (`--n_base_limit`, disabled by default) and N base percentage (`-n, --n_percent_limit`, enabled by default),  .  
 
 To filter reads by its percentage of unqualified bases, two options should be provided:
 * `-q, --qualified_quality_phred`       the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified.
@@ -258,7 +260,8 @@ options:
   -Q, --disable_quality_filtering    quality filtering is enabled by default. If this option is specified, quality filtering is disabled
   -q, --qualified_quality_phred      the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified. (int [=15])
   -u, --unqualified_percent_limit    how many percents of bases are allowed to be unqualified (0~100). Default 40 means 40% (int [=40])
-  -n, --n_percent_limit              if one read's N base percentage is >n_percent_limit, then this read is discarded. Default 10 means 10% (int [=10])
+      --n_base_limit                 if number of N base is >n_base_limit, then this read is discarded (0~1000000). 0 means no N allowed, default 1000000 means no N limit (int [=1000000])
+  -n, --n_percent_limit              if one read's N base percentage is >n_percent_limit, then this read is discarded (0~100). Default 10 means 10% (int [=10])
   -m, --mean_qual                    if one read's mean_qual quality score <mean_qual, then this read is discarded. Default 0 means no requirement (int [=0])
   -L, --disable_length_filtering     length filtering is enabled by default. If this option is specified, length filtering is disabled
   -l, --length_required              reads shorter than length_required will be discarded, default is 20. (int [=20])
