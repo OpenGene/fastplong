@@ -45,6 +45,8 @@ int Filter::passFilter(Read* r) {
             return FAIL_QUALITY;
         else if(nBaseNum * 100 > rlen * mOptions->qualfilter.nBasePercentLimit )
             return FAIL_N_BASE;
+        else if(mOptions->qualfilter.nBaseLimit !=1000000 && nBaseNum > mOptions->qualfilter.nBaseLimit)
+            return FAIL_N_BASE;
     }
 
     if(mOptions->lengthFilter.enabled) {

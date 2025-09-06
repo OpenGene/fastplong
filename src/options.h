@@ -176,6 +176,8 @@ public:
     // if low_qual_base_num > lowQualLimit, then discard this read
     int unqualifiedPercentLimit;
     // if n_base_number > nBaseLimit, then discard this read
+    int nBaseLimit;
+    // if n_base_percent > nBasePercentLimit, then discard this read
     int nBasePercentLimit;
     // if average qual score < avgQualReq, then discard this read
     int avgQualReq;
