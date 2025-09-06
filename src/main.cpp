@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
     cmd.add("disable_quality_filtering", 'Q', "quality filtering is enabled by default. If this option is specified, quality filtering is disabled");
     cmd.add<int>("qualified_quality_phred", 'q', "the quality value that a base is qualified. Default 15 means phred quality >=Q15 is qualified.", false, 15);
     cmd.add<int>("unqualified_percent_limit", 'u', "how many percents of bases are allowed to be unqualified (0~100). Default 40 means 40%", false, 40);
-    cmd.add<int>("n_base_limit", 0, "if number of N base is >n_base_limit, then this read is discarded (0~1000000). 0 means no N allowed, default 1000000 means no N limit", false, -1);
+    cmd.add<int>("n_base_limit", 0, "if number of N base is >n_base_limit, then this read is discarded (0~1000000). 0 means no N allowed, default 1000000 means no N limit", false, 1000000);
     cmd.add<int>("n_percent_limit", 'n', "if one read's N base percentage is >n_percent_limit, then this read is discarded (0~100). Default 10 means 10%", false, 10);
     cmd.add<int>("mean_qual", 'm', "if one read's mean_qual quality score <mean_qual, then this read is discarded. Default 0 means no requirement", false, 0);
 
