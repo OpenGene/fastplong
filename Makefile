@@ -44,6 +44,7 @@ clean:
 	@rm -f $(TEST_TARGET)
 
 install:
+	mkdir -p $(BINDIR)
 	install $(TARGET) $(BINDIR)/$(TARGET)
 	@echo "Installed."
 
