@@ -106,8 +106,10 @@ def processDir(folder, options):
             if not os.path.exists(opt.report_dir):
                 os.makedirs(opt.report_dir)
         
-        report_file = os.path.join(opt.report_dir, os.path.basename(opt.read_file))
+        report_name = os.path.basename(getBaseName(opt.read_file))
+        report_file = os.path.join(opt.report_dir, report_name)
         cmd += " --html=" + report_file + ".html --json=" + report_file + ".json"
+        cmd += ' --report_title="' + report_name + '"'
         
         commands.append(cmd)
     
